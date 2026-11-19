@@ -1016,7 +1016,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V53</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V54</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3479,12 +3479,12 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     nearCardHTML+
 
     '<div class="row gap" style="margin-bottom:26px">'+
-      '<button class="btn-ghost gold" id="btn-copy">複製課盤</button>'+
+      '<button class="btn-ghost gold" id="btn-copy">複製課盤圖</button>'+
       '<button class="btn-ghost" id="btn-save">存為課例</button>'+
       '<button class="btn-ghost" id="btn-back">回上方調整</button>'+
     '</div>';
 
-    $('#btn-copy').addEventListener('click',function(){copyText(textPan(r));});
+    $('#btn-copy').addEventListener('click',function(){copyPanImage(r);});
     $('#btn-save').addEventListener('click',function(){saveHist(r);});
     $('#btn-back').addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
   }
@@ -3540,6 +3540,230 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已複製課盤');}catch(e){toast('複製失敗，請長按選取');}
       document.body.removeChild(ta);
     }
+  }
+
+  /* ---------- 課盤圖片：用 Canvas 重繪「四柱」「課式」兩張卡，輸出 PNG ----------
+     純文字貼到通訊軟體常因字型／寬度跑掉，改直接出圖，貼出去就是整齊的長相。
+     顏色、欄位與畫面同一套（宣紙主題），四列籌碼採固定欄位，跨列對齊。 */
+  var PIC={card:'#fffdf6',cardBd:'#ddd2ba',cell:'#faf5e8',cellBd:'#e2d7c0',
+    row:'#fbf7ec',rowBd:'#e2d7c0',rowUsed:'#f9eeda',rowUsedBd:'#c9a06a',
+    ink:'#241d15',dim:'#8d8373',cin:'#9c2b1f',jm:'#4a6b8a',mark:'#b3a68f',paper:'#f4efe2'};
+  var PIC_POS={'人元':'#7b3fa0','貴神':'#2a5aa8','將神':'#1c7a55','地分':'#a06a10'};
+  var PIC_WX={'木':'#2f7d5e','火':'#bc3a20','土':'#a87c1c','金':'#6d7681','水':'#2a6d9e'};
+  var P_SERIF='"Songti TC","Noto Serif TC",serif';
+  var P_KAI='"LXGW WenKai TC","Kaiti TC","DFKai-SB","標楷體",serif';
+
+  function pRound(ctx,x,y,w,h,r){
+    r=Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+  function pBox(ctx,x,y,w,h,r,fill,bd,lw,dash){
+    pRound(ctx,x,y,w,h,r);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(bd){ctx.save();if(dash)ctx.setLineDash([3,2]);ctx.strokeStyle=bd;ctx.lineWidth=lw||1;ctx.stroke();ctx.restore();}
+  }
+  function pTxt(ctx,t,x,y,font,color,align,ls){
+    ctx.save();
+    ctx.font=font;ctx.fillStyle=color;ctx.textAlign=align||'left';ctx.textBaseline='middle';
+    if(ls) ctx.letterSpacing=ls+'px';
+    ctx.fillText(t,x,y);
+    ctx.restore();
+  }
+  function pChipW(ctx,t,o){
+    o=o||{};
+    ctx.font=(o.fw||400)+' '+((o.fs||10.5))+'px '+(o.ff||P_KAI);
+    return Math.max(o.minW||0, ctx.measureText(t).width+(o.pad===undefined?5.5:o.pad)*2);
+  }
+  function pChipDraw(ctx,x,cy,t,o,w){
+    o=o||{};
+    var fs=o.fs||10.5, h=o.h||17;
+    if(!w) w=pChipW(ctx,t,o);
+    pBox(ctx,x,cy-h/2,w,h,o.r===undefined?3:o.r,o.bg||null,o.bd||null,1,o.dash);
+    pTxt(ctx,t,x+w/2,cy+0.5,(o.fw||400)+' '+fs+'px '+(o.ff||P_KAI),o.color||PIC.jm,'center');
+    return w;
+  }
+
+  function drawPanCanvas(r){
+    var dpr=2, W=700, M=16, PAD=16, CW=W-M*2;
+    var HEAD=20, GAP=8, SZH=82, KVH=46, ROWH=54, RGAP=7;
+    var c1H=PAD+HEAD+GAP+SZH+GAP+KVH+PAD;              // 188
+    var c2H=PAD+HEAD+GAP+ROWH*4+RGAP*3+PAD;             // 297
+    var H=M+c1H+14+c2H+M;                              // 531
+    var cv=document.createElement('canvas');
+    cv.width=W*dpr;cv.height=H*dpr;
+    var ctx=cv.getContext('2d');
+    ctx.scale(dpr,dpr);
+    ctx.fillStyle=PIC.paper;ctx.fillRect(0,0,W,H);
+
+    var p=r.pos, sz=r.sizhu;
+    var inner=CW-PAD*2;                                 // 636
+
+    /* ---- 卡 1：四柱 ---- */
+    var x=M, y=M;
+    pBox(ctx,x,y,CW,c1H,4,PIC.card,PIC.cardBd);
+    var hx=x+PAD, hcy=y+PAD+HEAD/2;
+    pBox(ctx,hx,hcy-8.5,17,17,2,PIC.cin);
+    pTxt(ctx,'課',hx+8.5,hcy+0.5,'700 10.5px '+P_SERIF,'#fff8ec','center');
+    pTxt(ctx,'四柱',hx+25,hcy,'700 15px '+P_SERIF,PIC.ink,'left',2);
+    if(r.mode!=='gz'&&r.input.dateText){
+      pTxt(ctx,r.input.dateText,x+CW-PAD,hcy,'11px '+P_KAI,PIC.dim,'right');
+    }
+
+    var gw=(inner-GAP*3)/4;                             // 153
+    var gy=y+PAD+HEAD+GAP;
+    [['年柱',sz.year],['月柱',sz.month],['日柱',sz.day],['時柱',sz.hour]].forEach(function(it,i){
+      var gx=hx+i*(gw+GAP);
+      pBox(ctx,gx,gy,gw,SZH,3,PIC.cell,PIC.cellBd);
+      pTxt(ctx,it[0],gx+gw/2,gy+19,'10.5px '+P_KAI,PIC.dim,'center',1);
+      pTxt(ctx,it[1].g,gx+gw/2,gy+47,'24px '+P_SERIF,PIC.cin,'center');
+      pTxt(ctx,it[1].z,gx+gw/2,gy+73,'24px '+P_SERIF,PIC.ink,'center');
+    });
+
+    var ky=gy+SZH+GAP;
+    var kv=[
+      ['月建', r.monthJian+'（'+r.monthWx+'）'],
+      ['月將', r.jiang.zhi+'（'+r.jiang.name+'）'],
+      ['日旬空', r.kong.join('、')||'無'],
+      ['四大空亡', r.kongInfo.fvWx? r.kongInfo.fvWx+'（'+(r.kongInfo.fvHit?'犯':'無')+'）':'無']
+    ];
+    kv.forEach(function(it,i){
+      var kx=hx+i*(gw+GAP);
+      pBox(ctx,kx,ky,gw,KVH,3,PIC.cell,PIC.cellBd);
+      pTxt(ctx,it[0],kx+10,ky+14,'10px '+P_KAI,PIC.dim,'left',1);
+      pTxt(ctx,it[1],kx+10,ky+32,'13px '+P_KAI,'#2b241b','left');
+    });
+
+    /* ---- 卡 2：課式 ---- */
+    var y2=y+c1H+14;
+    pBox(ctx,x,y2,CW,c2H,4,PIC.card,PIC.cardBd);
+    var hy2=y2+PAD+HEAD/2;
+    pBox(ctx,hx,hy2-8.5,17,17,2,PIC.cin);
+    pTxt(ctx,'式',hx+8.5,hy2+0.5,'700 10.5px '+P_SERIF,'#fff8ec','center');
+    pTxt(ctx,'課式 · 干神將方',hx+25,hy2,'700 15px '+P_SERIF,PIC.ink,'left',2);
+
+    var rx=hx, rw=inner;
+    var ry=y2+PAD+HEAD+GAP;
+    var LABW=46, LABX=rx+56, GZX=rx+110, NMX=rx+180, CHX=rx+290;
+    /* 籌碼固定欄：空亡 104 / ＋ 18 / 五行 30 / 內旺 26 / 外旺 42 / 神煞 剩餘 */
+    var C_KONG=CHX, W_KONG=104, C_YY=C_KONG+W_KONG, W_YY=18,
+        C_WX=C_YY+W_YY, W_WX=30, C_IN=C_WX+W_WX, W_IN=26,
+        C_OUT=C_IN+W_IN, W_OUT=42, C_SS=C_OUT+W_OUT, W_SS=(rx+rw-8)-C_SS;
+
+    [p.ren,p.shen,p.jiang,p.fang].forEach(function(o,i){
+      var cy=ry+i*(ROWH+RGAP), mid=cy+ROWH/2;
+      pBox(ctx,rx,cy,rw,ROWH,3,o.used?PIC.rowUsed:PIC.row,o.used?PIC.rowUsedBd:PIC.rowBd);
+
+      // 標記（用）／（時辰）／（自選）
+      var mark='';
+      if(o.used) mark='（用）';
+      else if(o.label==='地分') mark=(r.fangSrc==='hour'?'（時辰）':'（自選）');
+      if(mark) pTxt(ctx,mark,rx+12,mid,'11.5px '+P_SERIF,PIC.mark,'left');
+
+      // 位名
+      pTxt(ctx,o.label,LABX+LABW/2,mid,'600 13px '+P_SERIF,PIC_POS[o.label]||PIC.dim,'center',1);
+
+      // 干支（單干／單支一律擺地支欄，四列右緣同一條線）
+      if(o.gan&&o.zhi){
+        pTxt(ctx,o.gan,GZX,mid,'28px '+P_SERIF,PIC.cin,'left');
+        pTxt(ctx,o.zhi,GZX+31,mid,'28px '+P_SERIF,PIC.ink,'left');
+      } else if(o.gan){
+        pTxt(ctx,o.gan,GZX+31,mid,'28px '+P_SERIF,PIC.cin,'left');
+      } else {
+        pTxt(ctx,o.zhi,GZX,mid,'28px '+P_SERIF,PIC.ink,'left');
+      }
+
+      // 神將名
+      if(o.name&&o.label!=='地分') pTxt(ctx,o.name,NMX,mid,'13.5px '+P_SERIF,PIC.jm,'left');
+
+      // 空亡（欄內置中）
+      var kk=[];
+      if(o.kongXun) kk.push(['日旬空',{color:'#9c2b1f',bd:'#c98b7f',bg:'#fbe9e3',r:2,fs:10}]);
+      if(o.kongDa) kk.push(['四大空亡',{color:'#a3246e',bd:'#cf93bb',bg:'#fbe7f1',r:99,fs:10}]);
+      if(!kk.length) kk.push(['–',{color:'#b5a894',bd:'#ddd1b9',bg:'#fdfaf1',r:2,fs:10}]);
+      var kws=kk.map(function(t){return pChipW(ctx,t[0],t[1]);});
+      var ktot=kws.reduce(function(a,b){return a+b;},0)+3*(kws.length-1);
+      var kx=C_KONG+(W_KONG-ktot)/2;
+      kk.forEach(function(t,j){ pChipDraw(ctx,kx,mid,t[0],t[1],kws[j]); kx+=kws[j]+3; });
+
+      // 陰陽（＋／－）
+      pChipDraw(ctx,C_YY+(W_YY-19)/2,mid,o.yang?'+':'−',
+        {color:o.yang?'#8a4a1a':'#3c5670',bd:o.yang?'#cfa876':'#9cb2c8',
+         bg:o.yang?'#f6e3c6':'#e3ecf6',r:9.5,fs:12.5,minW:19,pad:2,fw:700,h:19},19);
+
+      // 五行（實心色塊）
+      var wx=o.wx, wwid=pChipW(ctx,wx,{fs:10.5,minW:22,pad:4,fw:700});
+      pChipDraw(ctx,C_WX+(W_WX-wwid)/2,mid,wx,
+        {color:'#fffdf6',bg:PIC_WX[wx]||'#6d7681',r:3,fs:10.5,minW:22,pad:4,fw:700},wwid);
+
+      // 內旺衰
+      var inHot=o.innerWs==='旺';
+      var iw=pChipW(ctx,o.innerWs,{fs:10.5,minW:22,pad:4});
+      pChipDraw(ctx,C_IN+(W_IN-iw)/2,mid,o.innerWs,
+        {color:inHot?'#fffdf6':'#1c6f5c',bd:inHot?'#1c6f5c':'#8fc4b6',
+         bg:inHot?'#1c6f5c':'#e8f4ef',r:3,fs:10.5,minW:22,pad:4,fw:inHot?700:400},iw);
+
+      // 外旺衰（虛線）
+      var ouHot=o.outerWs==='旺';
+      var ot='外'+o.outerWs;
+      var ow=pChipW(ctx,ot,{fs:10.5,minW:34,pad:4});
+      pChipDraw(ctx,C_OUT+(W_OUT-ow)/2,mid,ot,
+        {color:ouHot?'#fffdf6':'#2b4d80',bd:ouHot?'#33578f':'#a3b4d6',
+         bg:ouHot?'#33578f':'#e9eef8',r:3,fs:10.5,minW:34,pad:4,dash:!ouHot,fw:ouHot?700:400},ow);
+
+      // 神煞（吉／凶分色，左對齊同一欄）
+      var ssl=o.shenShaList||[];
+      var sx=C_SS;
+      if(!ssl.length){
+        pChipDraw(ctx,sx,mid,'—',{color:'#a09484',bd:'#cfc3ac',bg:'#fdfaf1',r:3,fs:10,minW:20,pad:4});
+      } else {
+        ssl.forEach(function(n){
+          var ssJi={'天德':1,'天德合':1,'月德':1,'月德合':1,'天喜':1,'天赦':1,
+            '驛馬':1,'天馬':1,'天醫':1,'地醫':1,'六甲':1,'六丁':1,'三奇':1}[n];
+          var w=pChipW(ctx,n,{fs:10,pad:3.5});
+          if(sx+w>C_SS+W_SS+1){ return; }
+          pChipDraw(ctx,sx,mid,n, ssJi
+            ? {color:'#8a5a1a',bd:'#c9a06a',bg:'#f8eeda',r:3,fs:10,pad:3.5}
+            : {color:'#6b4a86',bd:'#b9a3cf',bg:'#f1ebf7',r:3,fs:10,pad:3.5}, w);
+          sx+=w+4;
+        });
+      }
+    });
+
+    return cv;
+  }
+
+  function copyPanImage(r){
+    var cv;
+    try{ cv=drawPanCanvas(r); }catch(e){ toast('圖片產生失敗'); return; }
+    window.__lastPan=cv;
+    function dl(b){
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(b);
+      var d=new Date(), p2=function(n){return (n<10?'0':'')+n;};
+      a.download='金口訣課盤_'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'_'+p2(d.getHours())+p2(d.getMinutes())+'.png';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(function(){URL.revokeObjectURL(a.href);},3000);
+      toast('已下載課盤圖');
+    }
+    /* ClipboardItem 直接吃 Promise<Blob>，才能保住「使用者手勢」，
+       否則 toBlob 回呼已是非同步，部分瀏覽器會以 NotAllowedError 拒絕。 */
+    function fallbackBlob(){ cv.toBlob(function(b){ if(b) dl(b); else toast('圖片產生失敗'); },'image/png'); }
+    if(navigator.clipboard&&window.ClipboardItem){
+      try{
+        var item=new ClipboardItem({'image/png':new Promise(function(res){ cv.toBlob(res,'image/png'); })});
+        navigator.clipboard.write([item]).then(
+          function(){toast('已複製課盤圖，可直接貼上');},
+          fallbackBlob
+        );
+        return;
+      }catch(e){}
+    }
+    fallbackBlob();
   }
 
   /* ---------- 歷史 ---------- */
