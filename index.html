@@ -213,6 +213,9 @@
   .ssref-b.godnote .godnote-full{grid-column:1/-1}
   .ssref-b.godnote .godnote-r{display:contents}
   .ssref-b.godnote .godnote-r>b{color:#d9c59a;font-weight:600;white-space:nowrap;font-family:"Noto Serif TC",serif}
+  /* 五行性格特徵行業：性格／特徵／行業各自成段，續行縮排對齊標籤後文字 */
+  .wx-body{min-width:0}
+  .wx-line{display:block;padding-left:3.117em;text-indent:-3.117em}
   /* 地支象意．基本特性：標籤自成一行，(1)(2)(3) 與標籤同左緣，續行對齊編號後文字 */
   .ssref-r>.zhi-body{min-width:0}
   .gd-trait{display:block;margin-top:1px}
@@ -2790,7 +2793,11 @@
     var wxRefHTML='<div class="ssref"><div class="ssref-b">'+
       (wxInKe.length?wxInKe.map(function(w){
         var t = WX_TRAIT[w];
-        return '<div class="ssref-r"><b>'+w+'</b><span>性格：'+t.xing+'<br>特徵：'+t.te+'<br>行業：'+t.ye+'</span></div>';
+        return '<div class="ssref-r"><b>'+w+'</b><span class="wx-body">'+
+          '<span class="wx-line">性格：'+t.xing+'</span>'+
+          '<span class="wx-line">特徵：'+t.te+'</span>'+
+          '<span class="wx-line">行業：'+t.ye+'</span>'+
+          '</span></div>';
       }).join(''):'<div class="ssref-r"><span>本課四位未見五行。</span></div>')+
       '</div></div>';
 
