@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>金口訣 · 版面風格三選</title>
+<meta name="theme-color" content="#0e0e10">
+<style>
+  :root{
+    --bg:#0e0e10; --panel:#17171a; --line:#2b2b30; --text:#efeeea; --muted:#a2a09a; --dim:#77756f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+  body{
+    font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;
+    line-height:1.65;letter-spacing:.02em;
+    background:
+      radial-gradient(90% 45% at 50% -8%, #23232a 0%, rgba(14,14,16,0) 62%),
+      var(--bg);
+    min-height:100dvh;padding-bottom:40px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  header{padding:44px 0 10px;text-align:center}
+  .kicker{font-size:11px;letter-spacing:.42em;color:var(--dim);text-transform:uppercase}
+  h1{font-family:"Songti TC","Noto Serif TC","PMingLiU",serif;font-size:clamp(26px,4.6vw,38px);
+     font-weight:700;letter-spacing:.14em;margin:12px 0 6px}
+  .lede{color:var(--muted);font-size:14px;margin:0}
+  .lede b{color:#e6c886;font-weight:600}
+  .rule{height:1px;background:linear-gradient(90deg,transparent,#3a3a42,transparent);margin:26px 0 6px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;gap:22px;max-width:460px;margin-left:auto;margin-right:auto}}
+
+  .opt{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 16px 18px;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+  .opt:hover{transform:translateY(-3px);border-color:#4a4a54;box-shadow:0 26px 50px -30px #000}
+  .opt .row1{display:flex;align-items:center;gap:10px}
+  .badge{width:26px;height:26px;flex:0 0 26px;border-radius:7px;display:grid;place-items:center;
+    font-size:13px;font-weight:800;color:#0e0e10}
+  .opt h2{font-size:19px;letter-spacing:.12em;margin:0;font-weight:700;font-family:"Songti TC","Noto Serif TC",serif}
+  .pos{color:var(--muted);font-size:12.5px;margin:8px 0 0;letter-spacing:.04em}
+  .sw{display:flex;gap:5px;margin:12px 0 0}
+  .sw i{width:26px;height:8px;border-radius:2px;display:block}
+  ul{margin:12px 0 14px;padding:0;list-style:none;font-size:12.5px;color:#c9c6bf;line-height:1.85}
+  ul li{display:flex;gap:7px}
+  ul li::before{content:"";width:4px;height:4px;border-radius:50%;background:#5d5b55;margin-top:9px;flex:none}
+  ul b{color:#efeeea;font-weight:600}
+
+  .stage{position:relative;margin-top:auto;border-radius:12px;overflow:hidden;border:1px solid #303036;
+    background:#000}
+  .stage img{display:block;width:100%;height:430px;object-fit:cover;object-position:top center}
+  .pip{position:absolute;right:9px;bottom:9px;width:104px;border-radius:8px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.35);box-shadow:0 14px 26px -12px #000;background:#000}
+  .pip img{height:186px;object-fit:cover;object-position:top center}
+  .pip span{position:absolute;left:0;top:0;background:rgba(0,0,0,.62);color:#fff;font-size:9px;
+    letter-spacing:.1em;padding:1px 5px;border-bottom-right-radius:6px}
+  .go{margin-top:14px;display:flex;align-items:center;justify-content:space-between;
+    font-size:13px;letter-spacing:.1em;color:#e6c886;font-weight:600}
+  .go span{transition:transform .18s}
+  .opt:hover .go span{transform:translateX(4px)}
+
+  /* 各版色票 */
+  .a .badge{background:#9c2b1f;color:#fff8ec}
+  .b .badge{background:#6ee7c8;color:#04211c}
+  .c .badge{background:#ff3b2f;color:#000}
+  .a .go{color:#d06a58}
+  .b .go{color:#6ee7c8}
+  .c .go{color:#ff6a5e}
+
+  .note{margin:30px 0 0;padding:14px 16px;border-left:2px solid #5d5b55;background:#141417;
+    border-radius:0 10px 10px 0;color:var(--muted);font-size:12.5px;line-height:1.8}
+  .note b{color:#efeeea}
+  footer{margin-top:26px;text-align:center;color:var(--dim);font-size:11.5px;letter-spacing:.14em}
+  .toplink{display:inline-block;margin-top:6px;color:#8f8d87;font-size:12px;text-decoration:none;
+    border-bottom:1px solid #3a3a42;padding-bottom:2px}
+  .toplink:hover{color:#e6c886;border-color:#e6c886}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">雲起時 · 金口訣</div>
+    <h1>版面風格三選</h1>
+    <p class="lede">內容、功能、互動完全相同，只換<b>字體、配色與元件形狀</b>。點任一版即可開完整頁面。</p>
+    <div class="rule"></div>
+  </header>
+
+  <main class="grid">
+
+    <a class="opt a" href="theme-a.html">
+      <div class="row1"><div class="badge">A</div><h2>宣紙文楷</h2></div>
+      <p class="pos">淺米紙底 · 楷書 · 朱紅</p>
+      <div class="sw">
+        <i style="background:#f4efe2"></i><i style="background:#fffdf6;border:1px solid #dcd0b8"></i>
+        <i style="background:#9c2b1f"></i><i style="background:#241d15"></i>
+      </div>
+      <ul>
+        <li><b>字體</b>：LXGW 文楷（楷書），標題字距放寬</li>
+        <li><b>配色</b>：宣紙米白、墨黑、朱紅單一重點色</li>
+        <li><b>形狀</b>：卡片近直角、分頁改為紅線底線式</li>
+      </ul>
+      <div class="stage">
+        <img src="thumb-a-top.jpg" alt="A 版首頁">
+        <div class="pip"><span>課盤</span><img src="thumb-a-pan.jpg" alt="A 版課盤"></div>
+      </div>
+      <div class="go">開啟 A 版<span>→</span></div>
+    </a>
+
+    <a class="opt b" href="theme-b.html">
+      <div class="row1"><div class="badge">B</div><h2>青瓷粉圓</h2></div>
+      <p class="pos">深青底 · 圓體 · 薄荷青</p>
+      <div class="sw">
+        <i style="background:#061a1a"></i><i style="background:#0c2724;border:1px solid #1b4740"></i>
+        <i style="background:#6ee7c8"></i><i style="background:#93b8b0"></i>
+      </div>
+      <ul>
+        <li><b>字體</b>：Zen Maru Gothic 圓體，轉角圓潤</li>
+        <li><b>配色</b>：青瓷深綠、薄荷青，無金色</li>
+        <li><b>形狀</b>：大圓角卡片、藥丸形分頁與按鈕</li>
+      </ul>
+      <div class="stage">
+        <img src="thumb-b-top.jpg" alt="B 版首頁">
+        <div class="pip"><span>課盤</span><img src="thumb-b-pan.jpg" alt="B 版課盤"></div>
+      </div>
+      <div class="go">開啟 B 版<span>→</span></div>
+    </a>
+
+    <a class="opt c" href="theme-c.html">
+      <div class="row1"><div class="badge">C</div><h2>朱墨極黑</h2></div>
+      <p class="pos">純黑 · 粗黑體 · 朱紅塊面</p>
+      <div class="sw">
+        <i style="background:#000000;border:1px solid #2c2c2c"></i><i style="background:#ff3b2f"></i>
+        <i style="background:#f2f2f2"></i><i style="background:#ffd400"></i>
+      </div>
+      <ul>
+        <li><b>字體</b>：粗黑體、標題紅底黑字塊面</li>
+        <li><b>配色</b>：純黑＋朱紅，高對比、無灰調</li>
+        <li><b>形狀</b>：全部直角、硬陰影、方形標籤</li>
+      </ul>
+      <div class="stage">
+        <img src="thumb-c-top.jpg" alt="C 版首頁">
+        <div class="pip"><span>課盤</span><img src="thumb-c-pan.jpg" alt="C 版課盤"></div>
+      </div>
+      <div class="go">開啟 C 版<span>→</span></div>
+    </a>
+
+  </main>
+
+  <div class="note">
+    <b>說明</b>：三版都是「主題層」蓋在現有 <b>index-37</b> 之上，結構與程式完全沒動，所以功能一致、可隨時換回。
+    另外三版都順手修了一個手機上的小問題：四柱下方的「月建／月將／日旬空／四大空亡」原本四格並排會把「寅（功曹）」斷成兩行，現改為 2×2，不再孤字換行。
+    選定後我會把該版併入正式 <b>index.html</b>（依版號規則存為 index-38）。
+  </div>
+
+  <footer>
+    宏鑌工程顧問有限公司 · SHENG 2026/11
+    <div><a class="toplink" href="index.html">回首頁（目前正式版）</a></div>
+  </footer>
+</div>
+</body>
+</html>
