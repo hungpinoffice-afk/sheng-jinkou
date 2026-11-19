@@ -205,6 +205,8 @@
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
   .rel-detail .rel-seg>span{display:block;min-width:0}
+  /* 斷例：每列自動換行的續行對齊到 a、b、之後的文字起點 */
+  .rel-detail .ex-line{display:block;padding-left:1.6em;text-indent:-1.6em}
 
   /* ── 24 節氣（起課時間卡標題列） ── */
   .jqwrap{margin-left:auto;position:relative;flex:0 1 auto;min-width:0}
@@ -2619,7 +2621,10 @@
       if(d.image) seg.push(['〔象意〕',d.image]);
       if(d.ex) seg.push(['〔斷例〕',d.ex]);
       var body=seg.map(function(p){
-        return '<div class="rel-seg"><b>'+p[0]+'</b><span>'+p[1].replace(/\n/g,'<br>')+'</span></div>';
+        var content = p[0]==='〔斷例〕'
+          ? p[1].split('\n').map(function(line){return '<span class="ex-line">'+line+'</span>';}).join('')
+          : p[1].replace(/\n/g,'<br>');
+        return '<div class="rel-seg"><b>'+p[0]+'</b><span>'+content+'</span></div>';
       }).join('');
       return '<div class="ssref-r rel-detail"><b>'+t+'</b><span>'+body+'</span></div>';
     }
