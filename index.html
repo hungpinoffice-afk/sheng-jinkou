@@ -201,6 +201,13 @@
   .ssref-b{margin-top:6px;display:grid;gap:4px}
   .ssref-r{display:grid;grid-template-columns:64px 1fr;gap:8px;font-size:11.5px;line-height:1.6;color:#7b8694}
   .ssref-r b{color:#d9c59a;font-weight:600;font-family:"Noto Serif TC",serif}
+  /* 組合象意：整卡共用同一標籤欄寬（取最長標籤），標籤不折行，續行不再落回左緣 */
+  .ssref-b.combo{grid-template-columns:minmax(64px,max-content) 1fr;column-gap:8px;align-items:baseline}
+  .ssref-b.combo .ssref-g{display:contents}
+  .ssref-b.combo .ssref-gh{grid-column:1/-1;color:var(--gold);font-weight:600;font-family:"Noto Serif TC",serif;margin:10px 0 2px}
+  .ssref-b.combo .ssref-r{display:contents}
+  .ssref-b.combo .ssref-r>b{white-space:nowrap}
+  .ssref-b.combo .ssref-full{grid-column:1/-1}
   /* 課中關係象意：各〔標籤〕左緣對齊；標籤後內容（含 a、b、列點）自成一行起點 */
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
@@ -2751,13 +2758,13 @@
       }) };
     }).filter(function(g){return g.items.length>0;});
     var comboCount = comboGroups.reduce(function(a,g){return a+g.items.length;},0);
-    var comboRefHTML = '<div class="ssref"><div class="ssref-b">'+
+    var comboRefHTML = '<div class="ssref"><div class="ssref-b combo">'+
       (comboGroups.length?comboGroups.map(function(g){
-        return '<div class="ssref-g"><b style="color:var(--gold);display:block;margin:10px 0 5px">'+g.g+'</b>'+
+        return '<div class="ssref-g"><b class="ssref-gh">'+g.g+'</b>'+
           g.items.map(function(it){
             return '<div class="ssref-r"><b>'+it[0]+'</b><span>'+it[1]+'</span></div>';
           }).join('')+'</div>';
-      }).join(''):'<div class="ssref-r"><span>本課未見對應組合象意。</span></div>')+
+      }).join(''):'<div class="ssref-r"><span class="ssref-full">本課未見對應組合象意。</span></div>')+
       '</div></div>';
 
     var ssHTML = (ss.length ? ss.map(function(s){
