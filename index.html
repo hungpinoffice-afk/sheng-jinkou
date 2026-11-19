@@ -951,7 +951,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V46</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V47</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -1680,18 +1680,18 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     // → 神（貴神）克干／生干 → 神克將／生將 → 神克方／生方
     // → 將（將神）克干／生干 → 將克神／生神 → 將克方／生方
     // → 方（地分）克干／生干 → 方克神／生神 → 方克將／生將
-    // 同一組內「克」排前、「生」次之、「比」最後。
+    // 同一組內「克」排前、「生」次之；比和（同五行）不列入。
     var GONG_ORD = [
       ['人元', '貴神'], ['人元', '將神'], ['人元', '地分'],
       ['貴神', '將神'], ['貴神', '地分'], ['將神', '地分']
     ];
     var GONG_SUBJ_RANK = { '人元': 0, '貴神': 1, '將神': 2, '地分': 3 };
-    var GONG_REL_RANK = { '克': 0, '生': 1, '比': 2 };
+    var GONG_REL_RANK = { '克': 0, '生': 1 };
     var gongWX = { '人元': P.ren.wx, '貴神': P.shen.wx, '將神': P.jiang.wx, '地分': P.fang.wx };
     var gongHit = GONG_ORD.map(function (pair) {
       var a = pair[0], b = pair[1], wa = gongWX[a], wb = gongWX[b];
       var key, rel, from, to;
-      if (wa === wb) { from = a; to = b; key = a + '比' + b; rel = '比'; }
+      if (wa === wb) { return null; }   // 比和：不顯示，只論生克
       else if (SHENG[wa] === wb) { from = a; to = b; key = a + '生' + b; rel = '生'; }
       else if (KE[wa] === wb) { from = a; to = b; key = a + '克' + b; rel = '克'; }
       else if (SHENG[wb] === wa) { from = b; to = a; key = b + '生' + a; rel = '生'; }
