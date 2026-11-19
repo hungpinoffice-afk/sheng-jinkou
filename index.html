@@ -251,6 +251,20 @@
   .gd-video{display:grid;grid-template-columns:max-content 1fr;align-items:baseline;margin-top:2px}
   .gd-video>b{color:var(--gold);font-weight:600;white-space:nowrap}
   .gd-video>span{min-width:0}
+  /* 地支象意．分類標籤分色：七類各一色（人體赭／人物藍／動物橙／環境綠／器物紫／吉凶墨／疾病洋紅），
+     吉凶行內的「吉」「凶」再各自轉綠／紅 */
+  .zhi-body .zl{font-style:normal;font-weight:700;letter-spacing:.02em}
+  .zhi-body .zl.l-body{color:#9c3b22}
+  .zhi-body .zl.l-person{color:#2264a8}
+  .zhi-body .zl.l-animal{color:#a05f0c}
+  .zhi-body .zl.l-place{color:#16714f}
+  .zhi-body .zl.l-tool{color:#7b3fa0}
+  .zhi-body .zl.l-ji{color:#4a4038}
+  .zhi-body .zl.l-disease{color:#a3246e}
+  .zhi-body em.jl-ji{font-style:normal;font-weight:700;color:#1c7a55}
+  .zhi-body em.jl-xiong{font-style:normal;font-weight:700;color:#b03528}
+  .zhi-body .gd-trait>.gd-label{color:#0e7490;font-weight:700}
+  .ssref-r>.zhi-body>.gd-video>b{color:#8a6b2f}
   /* 課中關係象意：各〔標籤〕左緣對齊；標籤後內容（含 a、b、列點）自成一行起點 */
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
@@ -2759,7 +2773,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
   };;
   // 組合象意（《大象无形》第 7 節）：字幕自動轉寫已按術語校正
   var COMBO_NOTE = [
-    { g:'五行・干支・地支二三組合（圖表一）', items:[
+    { g:'五行・干支・地支二三組合', items:[
       ['辛巳','彩票站'],['亥子','男女交合之事'],['亥丑','原來有個水池後年被填上'],['亥寅','長得茂盛的大樹'],
       ['亥卯','綠油油的草坪、水生植物'],['亥辰','飲料'],['亥巳','打胎'],['乙戊','墳上有棵樹'],['辰亥','前列腺肥大'],
       ['亥未','做飲品行業的'],['卯酉','門對床，門對窗'],['己丑','直腸癌'],['子午','火鍋、洗車行'],
@@ -2770,7 +2784,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       ['癸亥','膝蓋有痣'],['辛未','土路、斜路'],['未申','家住轉角處'],['子巳','海外教育'],
       ['丙申','暴力，家暴'],['庚午','財務'],['寅寅','富翁']
     ]},
-    { g:'干支與宮位組合（圖表二）', items:[
+    { g:'干支與宮位組合', items:[
       ['丁卯','忙碌，奔波，心不得安寧。'],['戊戌','附近路有兩個起伏。或有兩堆磚石堆。房子周圍正在搞擴建。'],
       ['寅申','窗戶位置欠佳，床對著窗戶或門。'],['火金','家裡有石佛，損壞了臂膀、破損，導致破財、傷人口、死亡。'],
       ['辰戌','女人貧窮，愁苦，難以度日。'],['午子','午為文書，子為秘密，是機密文件、或陰私之事。'],
@@ -2784,7 +2798,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       ['地分空亡','有想要出售固定資產的想法或賣房。'],
       ['貴神被克','家的大門有問題，風水不好。']
     ]},
-    { g:'格局與干支组合（圖表三）', items:[
+    { g:'格局與干支組合', items:[
       ['甲子用爻','性格要強，當領導，人上人。'],
       ['庚未寅','傷家長，沒有男主人，家人離世，破財連連。未是孤獨之神。庚白虎在人元，為臨門，百事凶。'],
       ['甲午午','外生內，婦人淫亂，有一個當官的男人喜歡這個女人、妻子。火灾。'],
@@ -2800,7 +2814,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       ['戊未X申','有神跟著你回家，女人帶著錢財回家，親人一起回家。'],
       ['庚戌X戌','下生上，庚是移動之神。須兩次移宅，或移墳墓。其家主孤獨，或有僧道出游。']
     ]},
-    { g:'貴神與神煞组合（圖表四）', items:[
+    { g:'貴神與神煞組合', items:[
       ['甲、白虎、寅','木比為兄弟，被中間的申沖克，兄弟分家、分散。木為家長，被克，無家長。砍了神樹，家裡受傷、死傷的事不斷。此時要搬家才可以。'],
       ['乙、戌、卯','子孫死亡。狗作怪。被人害死的陰性作祟。'],
       ['丁、玄武、巳','以兩火夾一水，主兩陰人小口爭斗，先傷下一口，在上者主生疾病。以水性潤下，即在下者傷也。更主被人偷了鍋鏟釜等。又有衆禽入宅，主有傷害也。'],
@@ -2814,7 +2828,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       ['朱雀主文書、許可證','空亡，入戌土墓，是無證經營。'],
       ['地分為足，臨驛馬，空亡','說明懶惰不想出門。']
     ]},
-    { g:'象意交叉组合（圖表五）', items:[
+    { g:'象意交叉組合', items:[
       ['金木+午或巳','一定有吵架生氣'],['巳午+丑','向神許了願'],['申卯','被警察、官家查'],
       ['丑+辰戌','貴人入獄'],['刑+官動','打官司的事'],['寅+土','不光明的錢財'],
       ['未+丑','櫃子裡放了吃的'],['金+火','燒傷、燒到人'],['巳+丑','龜'],
@@ -2828,7 +2842,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       ['貴神克將神地分','孩子哭鬧的很厲害'],['申克卯','傷姑姑、女長輩'],
       ['白虎為病，午為血液','貧血病、白血病']
     ]},
-    { g:'病症與杂 combination（圖表六）', items:[
+    { g:'病症與雜症', items:[
       ['木被克','感冒風寒、咳嗽。'],['水克火','眼睛有病、有灾。'],['木克土','瘦弱、無力。'],
       ['丙午克庚申','生病、血光。'],['丁巳克辛酉','婦人有灾、陰私。'],['辛酉克乙卯','瘋癲精神病。'],
       ['庚辛克寅卯','傷老男人。'],['己未克癸亥','產灾、勞累過度的病。'],['卯克丑','東邊的小偷去田園偷盜。'],
@@ -2844,7 +2858,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       ['申亥','相害、耗泄金氣，有禍患。'],['午未','利於做生意，喝酒就成。'],
       ['水死+劫煞','劫煞是狠毒，毒，水是尿，尿毒症'],['卯午','掏鳥窩'],['辰子','卵巢囊腫']
     ]},
-    { g:'刑沖合害法則與人物象意（圖表七）', items:[
+    { g:'刑沖合害法則與人物象意', items:[
       ['刑+害','因受害而有官司刑罰。'],['刑+沖','因斗打而有官司刑罰。'],['刑+合','因合伙而有官司刑罰。'],
       ['刑+絕','因事情無法挽動而動官司。'],['刑+克','因爭斗而有官司刑罰。'],['刑+生','口是心非，背後作祟。'],
       ['刑+破','有傷灾、血光、傷損、刑罰。'],['刑+刑','刑罰官司連續不斷。'],
@@ -3132,8 +3146,17 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
             var num=/^\(\d+\)/.test(x);
             return '<p class="gd-item'+(num?'':' gd-plain')+'">'+x+'</p>';
           }).join('')+'</div></div>';
-        return '<div class="ssref-r"><b>'+z+'</b><div class="zhi-body">人體：'+t.body+'<br>人物：'+t.person+'<br>動物：'+t.animal+
-          '<br>環境：'+t.place+'<br>器物：'+t.tool+'<br>吉凶：'+t.ji+'<br>疾病：'+t.disease+traitHTML+
+        var jiHTML=String(t.ji)
+          .replace(/吉(?=[：為主利])/g,'<em class="jl-ji">吉</em>')
+          .replace(/凶(?=[：為主])/g,'<em class="jl-xiong">凶</em>');
+        return '<div class="ssref-r"><b>'+z+'</b><div class="zhi-body">'+
+          '<i class="zl l-body">人體</i>：'+t.body+
+          '<br><i class="zl l-person">人物</i>：'+t.person+
+          '<br><i class="zl l-animal">動物</i>：'+t.animal+
+          '<br><i class="zl l-place">環境</i>：'+t.place+
+          '<br><i class="zl l-tool">器物</i>：'+t.tool+
+          '<br><i class="zl l-ji">吉凶</i>：'+jiHTML+
+          '<br><i class="zl l-disease">疾病</i>：'+t.disease+traitHTML+
           (ZHI_VIDEO[z]?'<div class="gd-video"><b>補充：</b><span>'+ZHI_VIDEO[z]+'</span></div>':'')+'</div></div>';
       }).join(''):'<div class="ssref-r"><span>本課四位未見地支。</span></div>')+
       '</div></div>';
@@ -3226,7 +3249,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 
     foldCard('支','地支象意（本課：'+(zhiInKe.length?zhiInKe.join('、'):'無')+'）','',zhiRefHTML)+
 
-    foldCard('組','組合象意（補充）',comboCount+' 組',comboRefHTML)+
+    foldCard('組','組合象意',comboCount+' 組',comboRefHTML)+
 
     foldCard('將','十二月將簡記（本課：'+(jgUse||'無')+'）','',jgRefHTML)+
 
