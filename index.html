@@ -1016,7 +1016,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V52</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V53</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3249,7 +3249,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
             (n.tongText?'　<b class="near-tong">[通關法]</b>'+n.tongText:'')+'</div>';
         }).join('')
       : '<div class="near-row near-empty">本課相鄰三位未見相克組合。</div>';
-    var nearCardHTML=foldCard('鄰','相鄰五行（課內四位）· 通關法','命中 '+(r.nearHit||[]).length+' 組',nearHitHTML);
+    var nearCardHTML=foldCard('鄰','相鄰五行及通關法','命中 '+(r.nearHit||[]).length+' 組',nearHitHTML);
 
     // 神煞只列本課四位實際命中者；規則書全表不再展開
     var ss=(r.shenSha||[]).filter(function(s){return (s.at||[]).length>0;});
