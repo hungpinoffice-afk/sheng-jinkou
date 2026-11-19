@@ -981,6 +981,16 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 .ssref-b.godnote .godnote-r>b.k-song{color:#7b3fa0}
 .ssref-b.godnote .godnote-r>b.k-jian{color:#16714f}
 .ssref-b.godnote .godnote-r>b.k-bu{color:#a3246e}
+/* 所主歌依原書排法：一行兩個對句（中間留一字寬），下一行再縮排對齊內容欄；
+   窄螢幕改成一句一行，避免句子從中間斷開。 */
+.ssref-b.godnote .godnote-song{display:block}
+.ssref-b.godnote .godnote-song>.song-line{display:block}
+.ssref-b.godnote .godnote-song>.song-line>.song-cp{display:inline}
+.ssref-b.godnote .godnote-song>.song-line>.song-cp+.song-cp{margin-left:1.05em}
+@media(max-width:560px){
+  .ssref-b.godnote .godnote-song>.song-line>.song-cp{display:block}
+  .ssref-b.godnote .godnote-song>.song-line>.song-cp+.song-cp{margin-left:0}
+}
 
 /* ============ 五行性格特徵行業：五行各一色＋性格／特徵／行業分色 ============ */
 .wx-row{padding-left:10px;align-items:start}
@@ -1006,7 +1016,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V51</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V52</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3317,6 +3327,18 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       }
       return gzTokenize(t);
     }
+    /* 所主歌排版：原資料每行是一個對句（16 字），依原書排法兩句併為一行、行間再縮排對齊；
+       逐句包 .song-cp，窄螢幕（<=560px）由 CSS 改成一句一行，避免句中斷行。 */
+    function songHTML(s){
+      var ups = String(s||'').split('\n').map(function(x){ return x.replace(/^[\s　]+|[\s　]+$/g,''); }).filter(Boolean);
+      var rows = [], i;
+      for(i=0;i<ups.length;i+=2){
+        rows.push('<span class="song-line">'+
+          ups.slice(i,i+2).map(function(l){ return '<span class="song-cp">'+l+'</span>'; }).join('')+
+          '</span>');
+      }
+      return '<span class="godnote-song">'+rows.join('')+'</span>';
+    }
     // 只列本課貴神／月將本身，其餘十一項不再展開
     function godRefHTML(dict, use){
       var list = use && dict[use] ? [use] : [];
@@ -3326,7 +3348,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
           var vd = GS_VIDEO[n] || JG_VIDEO[n];
           return '<div class="godnote-full">'+godFullHTML(t.full,n)+'</div>'+
             '<div class="godnote-r"><b class="k-guan">[主管]</b><span>'+t.guan.replace(/^主管[：:]\s*/,'')+'</span></div>'+
-            '<div class="godnote-r"><b class="k-song">[所主歌]</b><span>'+t.song.replace(/\n/g,' ')+'</span></div>'+
+            '<div class="godnote-r"><b class="k-song">[所主歌]</b>'+songHTML(t.song)+'</div>'+
             '<div class="godnote-r"><b class="k-jian">[簡記]</b><span>'+t.jian+'</span></div>'+
             (vd?'<div class="godnote-r"><b class="k-bu">[補充]</b><span>'+vd+'</span></div>':'');
         }).join(''):'<div class="ssref-r"><span class="ssref-full">本課未見。</span></div>')+
