@@ -201,6 +201,8 @@
   .ssref-b{margin-top:6px;display:grid;gap:4px}
   .ssref-r{display:grid;grid-template-columns:64px 1fr;gap:8px;font-size:11.5px;line-height:1.6;color:#7b8694}
   .ssref-r b{color:#d9c59a;font-weight:600;font-family:"Noto Serif TC",serif}
+  /* 課中關係象意：換行續行對齊到〔標籤〕後的文字起點 */
+  .rel-detail span{display:block;padding-left:4.2em;text-indent:-4.2em}
 
   /* ── 24 節氣（起課時間卡標題列） ── */
   .jqwrap{margin-left:auto;position:relative;flex:0 1 auto;min-width:0}
@@ -2614,7 +2616,7 @@
       if(d.wai) seg.push('〔補充〕'+d.wai);
       if(d.image) seg.push('〔象意〕'+d.image);
       if(d.ex) seg.push('〔斷例〕'+d.ex);
-      return '<div class="ssref-r"><b>'+t+'</b><span>'+seg.join('<br>').replace(/\n/g,'<br>')+'</span></div>';
+      return '<div class="ssref-r rel-detail"><b>'+t+'</b><span>'+seg.join('<br>').replace(/\n/g,'<br>')+'</span></div>';
     }
     var relHitKeys=Object.keys(r.relKinds||{});
     var relHitHTML=relHitKeys.length? relHitKeys.map(relBlock).join('') : '<div class="ssref-r"><span>本課未命中特定類別。</span></div>';
