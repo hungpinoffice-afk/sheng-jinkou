@@ -2596,10 +2596,9 @@
       return '<div class="ssref-r"><b>'+t+'</b><span>'+seg.join('<br>').replace(/\n/g,'<br>')+'</span></div>';
     }
     var relHitKeys=Object.keys(r.relKinds||{});
-    var relHitHTML=relHitKeys.length? relHitKeys.map(relBlock).join('') : '<div class="ssref-r"><span>本課未命中特定類別，詳見下方十一類查法。</span></div>';
-    var relRefHTML='<details class="ssref"><summary>本課命中：'+(relHitKeys.length?relHitKeys.join('、'):'無')+'；點擊展開十一類象意</summary><div class="ssref-b">'+
-      relHitHTML+'<div style="height:1px;background:var(--line);margin:10px 0"></div>'+
-      Object.keys(window.REL_NOTE).map(relBlock).join('')+'</div></details>';
+    var relHitHTML=relHitKeys.length? relHitKeys.map(relBlock).join('') : '<div class="ssref-r"><span>本課未命中特定類別。</span></div>';
+    // 只顯示本課課中出現的關係類別，其餘十一類參考不再展開
+    var relRefHTML='<div class="ssref"><div class="ssref-b">'+relHitHTML+'</div></div>';
 
     // 宮位關係：本課四位生克對應斷語
     var gongHitHTML=(r.gongHit||[]).length
@@ -2607,25 +2606,10 @@
           return '<div class="ssref-r"><b>'+g.key+'（'+g.wx+'）</b><span>'+g.text+'</span></div>';
         }).join('')
       : '<div class="ssref-r"><span>本課四位間無生克（皆比和）。</span></div>';
-    var gongPosHTML=window.GONG_POS.map(function(p){
-      return '<div class="ssref-r"><b>'+p.k+'（簡稱'+p.s+'）</b><span>'+p.d+'</span></div>';
-    }).join('');
-    var gongRefHTML='<details class="ssref"><summary>本課命中 '+(r.gongHit||[]).length+' 組；點擊展開四位定位與全部宮位斷語</summary><div class="ssref-b">'+
-      '<div style="color:var(--gold);font-weight:600;margin-bottom:6px">【本課四位生克】</div>'+gongHitHTML+
-      '<div style="height:1px;background:var(--line);margin:10px 0"></div>'+
-      '<div style="color:var(--gold);font-weight:600;margin-bottom:6px">【四位定位】</div>'+gongPosHTML+
-      '<div style="height:1px;background:var(--line);margin:10px 0"></div>'+
-      '<div style="color:var(--gold);font-weight:600;margin-bottom:6px">【全部宮位生克斷語】</div>'+
-      Object.keys(window.GONG_NOTE).map(function(k){return '<div class="ssref-r"><b>'+k+'</b><span>'+window.GONG_NOTE[k]+'</span></div>';}).join('')+
-      '</div></details>';
+    // 只顯示本課四位實際命中的宮位生克，其餘定位與全部斷語不再展開
+    var gongRefHTML='<div class="ssref"><div class="ssref-b">'+gongHitHTML+'</div></div>';
 
-    // 相鄰五行：僅判斷相鄰三位（人元—貴神—將神—地分）的相克組合
-    var nearRefHTML='<details class="ssref"><summary>相鄰相克五行與通關法共 5 組；點擊展開查法</summary><div class="ssref-b">'+
-      Object.keys(window.NEAR_KE_NOTE).map(function(k){
-        var t = window.NEAR_TONG_NOTE[k];
-        return '<div class="ssref-r"><b>'+k.charAt(0)+' + '+k.charAt(1)+'</b><span>'+window.NEAR_KE_NOTE[k]+
-          (t?'<br><b style="color:var(--gold)">通關法：</b>中間用【'+t.bridge+'】通關，形成'+t.chain+'。':'')+'</span></div>';
-      }).join('')+'</div></details>';
+    // 相鄰五行：僅判斷相鄰三位（人元—貴神—將神—地分）的相克組合；只列本課命中
     var nearHitHTML=(r.nearHit||[]).length
       ? r.nearHit.map(function(n){
           return '<div class="ssref-r"><b>'+n.from+' → '+n.to+'（'+n.wx+'）</b><span>'+n.dir+'：'+n.text+
@@ -2634,96 +2618,77 @@
       : '<div class="ssref-r"><span>本課相鄰三位未見相克組合。</span></div>';
     var nearCardHTML='<div class="card">'+
       '<div class="c-head"><div class="c-no">鄰</div><div class="c-title">相鄰五行（課內四位）· 通關法</div><div class="c-note">命中 '+(r.nearHit||[]).length+' 組</div></div>'+
-      nearHitHTML+nearRefHTML+
+      nearHitHTML+
     '</div>';
 
+    // 神煞只列本課四位實際命中者；規則書全表不再展開
     var ss=(r.shenSha||[]).filter(function(s){return (s.at||[]).length>0;});
-    var SS_REF=[
-      ['天德','寅丁・卯申・辰壬・巳辛・午亥・未甲・申癸・酉寅・戌丙・亥乙・子巳・丑庚（月建）'],
-      ['天德合','天德之六合（干合／支合）'],
-      ['月德','寅午戌丙・亥卯未甲・申子辰壬・巳酉丑庚（月建）'],
-      ['月德合','月德之六合'],
-      ['天喜','春戌亥子・夏丑寅卯・秋辰巳午・冬未申酉（季節）'],
-      ['天赦','春戊寅・夏甲午・秋戊申・冬甲子（參日柱）'],
-      ['驛馬','寅午戌申・申子辰寅・巳酉丑亥・亥卯未巳（日支）'],
-      ['天馬','正七午・二八申・三九戌・四十子・五十一寅・六十二辰（月建）'],
-      ['天醫','寅戌・卯亥・辰子・巳丑・午寅・未卯・申辰・酉巳・戌午・亥未・子申・丑酉（月建）'],
-      ['地醫','天醫之對沖'],
-      ['六甲','人元／貴神／將神干見甲，且該爻旺相'],
-      ['六丁','人元／貴神／將神干見丁，見一即是'],
-      ['三奇','甲戊庚／乙丙丁／壬癸辛；課內先見兩字，四柱補齊第三字'],
-      ['五鬼','甲己巳午・乙庚寅卯・丙辛子丑・丁壬戌亥・戊癸申酉（日干）'],
-      ['截命災煞','甲己申酉・乙庚午未・丙辛辰巳・丁壬寅卯・戊癸子丑（日干）'],
-      ['劫煞','寅午戌亥・亥卯未申・申子辰巳・巳酉丑寅（日支）'],
-      ['天羅地網','日支前一辰為天羅、對沖為地網'],
-      ['關隔鎖','寅在酉上為關、辰在卯上為隔、申在卯上為鎖；更上見金／木／火為斬關・毀隔・破鎖'],
-      ['喪門','太歲前二辰（年支順二）'],
-      ['弔客','太歲後二辰（年支逆二）'],
-      ['病符','太歲後一辰（年支逆一）'],
-      ['天盜','課內見子水'],
-      ['喪車','春酉・夏子・秋卯・冬午（季節）'],
-      ['四丘','春丑・夏辰・秋未・冬戌（季節）'],
-      ['飛廉','正戌・二巳・三午・四未・五申・六酉・七辰・八亥・九子・十丑・十一寅・十二卯'],
-      ['地煞','劫煞順數五位'],
-      ['滅門','陽月逆三、陰月順三（月建）'],
-      ['祿倒','甲卯・乙辰・丙午・丁未・戊午・己未・庚酉・辛戌・壬子・癸丑（年干）'],
-      ['馬倒','寅午戌酉・申子辰卯・巳酉丑子・亥卯未午（年支）'],
-      ['天鬼','春酉・夏子・秋卯・冬午（季節）']
-    ];
-    var ssRefHTML = '<details class="ssref"><summary>依規則書 22 類神煞（'+SS_REF.length+' 名）與查法</summary><div class="ssref-b">'+
-      SS_REF.map(function(t){return '<div class="ssref-r"><b>'+t[0]+'</b><span>'+t[1]+'</span></div>';}).join('')+
-      '</div></details>';
-    var wxRefHTML = '<details class="ssref"><summary>五行性格特徵行業（規則書，點擊展開）</summary><div class="ssref-b">'+
-      ['木','火','土','金','水'].map(function(w){
+    // 五行只列本課四位出現者
+    var wxInKe=['木','火','土','金','水'].filter(function(w){
+      return order.some(function(o){return o.wx===w;});
+    });
+    var wxRefHTML='<div class="ssref"><div class="ssref-b">'+
+      (wxInKe.length?wxInKe.map(function(w){
         var t = WX_TRAIT[w];
         return '<div class="ssref-r"><b>'+w+'</b><span>性格：'+t.xing+'<br>特徵：'+t.te+'<br>行業：'+t.ye+'</span></div>';
-      }).join('')+
-      '</div></details>';
+      }).join(''):'<div class="ssref-r"><span>本課四位未見五行。</span></div>')+
+      '</div></div>';
 
-    // 地支象意：本課出現者列於前，其餘十二支續列；課式地支亦有滑鼠提示
+    // 地支象意：只列本課四位實際出現的地支；課式地支亦有滑鼠提示
     var zhiInKe = order.map(function(o){return o.zhi;}).filter(function(z){return !!z;})
       .filter(function(z,i,a){return a.indexOf(z)===i;});
-    var zhiList = zhiInKe.concat(ZHI_ORDER.filter(function(z){return zhiInKe.indexOf(z)<0;}));
-    var zhiRefHTML = '<details class="ssref"><summary>地支象意（本課：'+(zhiInKe.length?zhiInKe.join('、'):'無')+'，點擊展開）</summary><div class="ssref-b">'+
-      zhiList.map(function(z){
+    var zhiRefHTML = '<div class="ssref"><div class="ssref-b">'+
+      (zhiInKe.length?zhiInKe.map(function(z){
         var t=ZHI_IMAGE[z];
-        var mark = zhiInKe.indexOf(z)>=0 ? ' <span style="color:var(--gold);font-size:11px">（本課）</span>' : '';
-        return '<div class="ssref-r"><b>'+z+mark+'</b><span>人體：'+t.body+'<br>人物：'+t.person+'<br>動物：'+t.animal+
+        return '<div class="ssref-r"><b>'+z+'</b><span>人體：'+t.body+'<br>人物：'+t.person+'<br>動物：'+t.animal+
           '<br>環境：'+t.place+'<br>器物：'+t.tool+'<br>吉凶：'+t.ji+'<br>疾病：'+t.disease+
           '<br>基本特性：'+t.trait.replace(/\n/g,'<br>')+
           (ZHI_VIDEO[z]?'<br><b style="color:var(--gold)">影片補充：</b>'+ZHI_VIDEO[z]:'')+'</span></div>';
-      }).join('')+
-      '</div></details>';
+      }).join(''):'<div class="ssref-r"><span>本課四位未見地支。</span></div>')+
+      '</div></div>';
 
     // 貴神／將神簡記：課式名稱即為查表鍵；本課使用者列於前
     // GS／JIANG_NAME 定義於 JK 模組內，renderPan 所在作用域不可見；
     // 改以簡記表的鍵取得十二貴神與十二月將名稱（順序與模組定義一致）。
-    var gsNow = Object.keys(GS_NOTE);
-    var jgNow = Object.keys(JG_NOTE);
     var gsUse = p.shen.name, jgUse = p.jiang.name;
-    function godRefHTML(dict, list, use){
-      return '<details class="ssref"><summary>本課：'+(use||'無')+'，點擊展開十二項</summary><div class="ssref-b">'+
-        list.map(function(n){
-          var t=dict[n], mark = n===use ? ' <span style="color:var(--gold);font-size:11px">（本課）</span>' : '';
+    // 只列本課貴神／月將本身，其餘十一項不再展開
+    function godRefHTML(dict, use){
+      var list = use && dict[use] ? [use] : [];
+      return '<div class="ssref"><div class="ssref-b">'+
+        (list.length?list.map(function(n){
+          var t=dict[n];
           var vd = GS_VIDEO[n] || JG_VIDEO[n];
-          return '<div class="ssref-r"><b>'+n+mark+'</b><span>'+t.full+'<br>'+t.guan+
+          return '<div class="ssref-r"><b>'+n+'</b><span>'+t.full+'<br>'+t.guan+
             '<br>〔所主歌〕'+t.song.replace(/\n/g,'<br>')+
             '<br>〔簡記〕'+t.jian+
             (vd?'<br><b style="color:var(--gold)">影片補充：</b>'+vd:'')+'</span></div>';
-        }).join('')+
-        '</div></details>';
+        }).join(''):'<div class="ssref-r"><span>本課未見。</span></div>')+
+        '</div></div>';
     }
-    var gsRefHTML = godRefHTML(GS_NOTE, gsUse ? [gsUse].concat(gsNow.filter(function(n){return n!==gsUse;})) : gsNow, gsUse);
-    var jgRefHTML = godRefHTML(JG_NOTE, jgUse ? [jgUse].concat(jgNow.filter(function(n){return n!==jgUse;})) : jgNow, jgUse);
+    var gsRefHTML = godRefHTML(GS_NOTE, gsUse);
+    var jgRefHTML = godRefHTML(JG_NOTE, jgUse);
 
-    var comboCount = COMBO_NOTE.reduce(function(a,g){return a+g.items.length;},0);
-    var comboRefHTML = '<details class="ssref"><summary>共 '+comboCount+' 組象意，點擊展開</summary><div class="ssref-b">'+
-      COMBO_NOTE.map(function(g){
+    // 組合象意：只保留關鍵字中含本課課式元素（干／支／五行／貴神／將神名稱）的條目
+    var keTokens=[];
+    order.forEach(function(o){
+      [o.gan,o.zhi,o.wx,o.name].forEach(function(v){
+        if(v && keTokens.indexOf(v)<0) keTokens.push(v);
+      });
+    });
+    var comboGroups=COMBO_NOTE.map(function(g){
+      return { g:g.g, items:g.items.filter(function(it){
+        return keTokens.some(function(t){return it[0].indexOf(t)>=0;});
+      }) };
+    }).filter(function(g){return g.items.length>0;});
+    var comboCount = comboGroups.reduce(function(a,g){return a+g.items.length;},0);
+    var comboRefHTML = '<div class="ssref"><div class="ssref-b">'+
+      (comboGroups.length?comboGroups.map(function(g){
         return '<div class="ssref-g"><b style="color:var(--gold);display:block;margin:10px 0 5px">'+g.g+'</b>'+
           g.items.map(function(it){
             return '<div class="ssref-r"><b>'+it[0]+'</b><span>'+it[1]+'</span></div>';
           }).join('')+'</div>';
-      }).join('')+'</div></details>';
+      }).join(''):'<div class="ssref-r"><span>本課未見對應組合象意。</span></div>')+
+      '</div></div>';
 
     var ssHTML = (ss.length ? ss.map(function(s){
       var where=(s.at||[]).map(function(a){
@@ -2734,7 +2699,7 @@
         where+
         '<span class="ss-b">'+s.basis+'</span></div>'+
         (s.note?'<div class="ss-n">'+s.note+'</div>':'')+'</div>';
-    }).join('') : '<div class="ss-n">本課四位未見所收神煞。</div>') + ssRefHTML;
+    }).join('') : '<div class="ss-n">本課四位未見所收神煞。</div>');
 
     body.innerHTML=
     '<div class="card">'+
