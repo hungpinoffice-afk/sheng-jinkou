@@ -2618,8 +2618,10 @@
     }
     var relHitKeys=Object.keys(r.relKinds||{});
     var relHitHTML=relHitKeys.length? relHitKeys.map(relBlock).join('') : '<div class="ssref-r"><span>本課未命中特定類別。</span></div>';
-    // 只顯示本課課中出現的關係類別，其餘十一類參考不再展開
-    var relRefHTML='<div class="ssref"><div class="ssref-b">'+relHitHTML+'</div></div>';
+    // 只顯示本課課中出現的關係類別象意；預設收合，點下拉再展開
+    var relRefHTML=relHitKeys.length
+      ? '<details class="ssref"><summary>本課命中 '+relHitKeys.length+' 類象意，點擊下拉展開</summary><div class="ssref-b">'+relHitHTML+'</div></details>'
+      : '';
 
     // 宮位關係：本課四位生克對應斷語
     var gongHitHTML=(r.gongHit||[]).length
