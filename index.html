@@ -541,7 +541,7 @@
   .ke-row.used{border-color:rgba(226,180,110,.55);
     background:linear-gradient(90deg,rgba(226,180,110,.10),rgba(226,180,110,.02))}
 
-  /* 空亡：日旬空＝朱、大空亡＝洋紅；兩者用不同形狀再補一層辨識 */
+  /* 空亡：日旬空＝朱（方角）、四大空亡＝洋紅（膠囊），用顏色＋形狀雙重辨識 */
   .chip.kong,.chip.kongc.on{color:#ff6b52;border-color:rgba(255,107,82,.75);
     background:rgba(255,107,82,.14);border-radius:5px}
   .chip.kongc.da{color:#e07ac0;border-color:rgba(224,122,192,.75);
@@ -1563,11 +1563,15 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 
     // ---- 空亡（旬空／四大空亡）＋內外旺衰 ----
     var fvWx = fourVoidWx(dayIdx);
+    var fvHit = false;
     var inner = innerWangWx(four);
     four.forEach(function (p) {
       p.kongXun = !!p.zhi && kong.indexOf(p.zhi) >= 0;
-      p.kongDa = !!fvWx && ((!!p.zhi && wxOfZhi(p.zhi) === fvWx) || (!!p.gan && wxOfGan(p.gan) === fvWx));
-      p.kongText = p.kongXun && p.kongDa ? '日旬空·大空亡' : (p.kongXun ? '日旬空' : (p.kongDa ? '大空亡' : '–'));
+      /* 四大空亡只看「該位實際顯示的五行」：人元取干，貴神／將神／地分取支。
+         貴神、將神的遁干僅供神煞輔助，不算四位之一，故不參與四大空亡判定。 */
+      p.kongDa = !!fvWx && p.wx === fvWx;
+      if (p.kongDa) fvHit = true;
+      p.kongText = p.kongXun && p.kongDa ? '日旬空·四大空亡' : (p.kongXun ? '日旬空' : (p.kongDa ? '四大空亡' : '–'));
       p.innerWs = inner.wx ? wangShuai(p.wx, inner.wx) : p.ws;
       p.outerWs = p.ws;
       p.shenSha = '';
@@ -1727,7 +1731,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       pos: P, four: four,
       used: { label: usedKey, reason: usedReason, warn: usedWarn },
       kong: kong,
-      kongInfo: { xun: xunName(dayIdx), kong: kong, fvWx: fvWx, innerWx: inner.wx, innerRule: inner.rule, innerWhy: inner.why },
+      kongInfo: { xun: xunName(dayIdx), kong: kong, fvWx: fvWx, fvHit: fvHit, innerWx: inner.wx, innerRule: inner.rule, innerWhy: inner.why },
       shenSha: ssList,
       relations: rels,
       relGroups: relGroups,
@@ -2859,7 +2863,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
   function kongChip(o){
     var s='';
     if(o.kongXun) s+='<span class="chip kongc on" title="日旬空亡：本旬所空之支">日旬空</span>';
-    if(o.kongDa)  s+='<span class="chip kongc on da" title="四大空亡：本旬缺此五行，同五行干支並論">大空亡</span>';
+    if(o.kongDa)  s+='<span class="chip kongc on da" title="四大空亡：本旬納音缺此五行，課內四位見同五行者犯之">四大空亡</span>';
     return '<span class="cg">'+(s || '<span class="chip kongc off">–</span>')+'</span>';
   }
   function wsChip(v,k,info){
@@ -3207,7 +3211,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
         '<div class="kv"><div class="k">月建</div><div class="v">'+r.monthJian+'（'+r.monthWx+'）</div></div>'+
         '<div class="kv"><div class="k">月將</div><div class="v">'+r.jiang.zhi+'（'+r.jiang.name+'）</div></div>'+
         '<div class="kv"><div class="k">日旬空</div><div class="v">'+r.kong.join('、')+'</div></div>'+
-        '<div class="kv" title="四大空亡：子午旬無水、寅申旬無金；甲辰／甲戌二旬無四大空亡"><div class="k">四大空亡</div><div class="v">'+(r.kongInfo.fvWx||'無')+'</div></div>'+
+        '<div class="kv" title="四大空亡：子午旬無水、寅申旬無金，課內四位（人元干、貴神／將神／地分支）見此五行者為犯；甲辰／甲戌二旬五行俱全，無四大空亡"><div class="k">四大空亡</div><div class="v">'+(r.kongInfo.fvWx ? r.kongInfo.fvWx+'（'+(r.kongInfo.fvHit?'犯':'無')+'）' : '無')+'</div></div>'+
       '</div>'+
     '</div>'+
 
