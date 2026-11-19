@@ -951,7 +951,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V45</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V46</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -1675,24 +1675,35 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     ];
 
     // ---- 宮位關係：依本課四位生克自動帶出對應斷語 ----
-    // 顯示順序（兩兩配對，同一對只出一條，方向依實際生克）：
-    // 人元─貴神 → 人元─將神 → 人元─地分 → 貴神─將神 → 貴神─地分 → 將神─地分
+    // 顯示順序依「發起者」排序（對應原書 24 條順序）：
+    // 干（人元）克神／生神 → 干克將／生將 → 干克方／生方
+    // → 神（貴神）克干／生干 → 神克將／生將 → 神克方／生方
+    // → 將（將神）克干／生干 → 將克神／生神 → 將克方／生方
+    // → 方（地分）克干／生干 → 方克神／生神 → 方克將／生將
+    // 同一組內「克」排前、「生」次之、「比」最後。
     var GONG_ORD = [
       ['人元', '貴神'], ['人元', '將神'], ['人元', '地分'],
       ['貴神', '將神'], ['貴神', '地分'], ['將神', '地分']
     ];
+    var GONG_SUBJ_RANK = { '人元': 0, '貴神': 1, '將神': 2, '地分': 3 };
+    var GONG_REL_RANK = { '克': 0, '生': 1, '比': 2 };
     var gongWX = { '人元': P.ren.wx, '貴神': P.shen.wx, '將神': P.jiang.wx, '地分': P.fang.wx };
     var gongHit = GONG_ORD.map(function (pair) {
       var a = pair[0], b = pair[1], wa = gongWX[a], wb = gongWX[b];
       var key, rel, from, to;
-      if (wa === wb) { from = a; to = b; key = a + '比' + b; rel = '比和'; }
+      if (wa === wb) { from = a; to = b; key = a + '比' + b; rel = '比'; }
       else if (SHENG[wa] === wb) { from = a; to = b; key = a + '生' + b; rel = '生'; }
       else if (KE[wa] === wb) { from = a; to = b; key = a + '克' + b; rel = '克'; }
       else if (SHENG[wb] === wa) { from = b; to = a; key = b + '生' + a; rel = '生'; }
       else if (KE[wb] === wa) { from = b; to = a; key = b + '克' + a; rel = '克'; }
       else { return null; }
-      return { key: key, from: from, to: to, wx: gongWX[from] + '→' + gongWX[to], rel: rel, text: window.GONG_NOTE[key] || '' };
-    }).filter(Boolean);
+      return {
+        key: key, from: from, to: to, rel: rel,
+        wx: gongWX[from] + '→' + gongWX[to],
+        text: window.GONG_NOTE[key] || '',
+        ord: GONG_SUBJ_RANK[from] * 100 + GONG_SUBJ_RANK[to] * 10 + GONG_REL_RANK[rel]
+      };
+    }).filter(Boolean).sort(function (x, y) { return x.ord - y.ord; });
 
     // ---- 相鄰五行：課內四位僅取相鄰兩位，命中相克即帶出對應斷語 ----
     var nearPairs = [
