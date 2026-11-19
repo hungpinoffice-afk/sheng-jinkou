@@ -958,13 +958,24 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 .rl-w{font-style:normal;font-size:.84em;line-height:1.5;padding:0 .38em;margin:0 .16em;border-radius:3px;
   color:#fffdf6;font-weight:700;letter-spacing:0;display:inline-block;position:relative;top:-.03em}
 
+/* ============ 組合象意：分組分色＋標籤依角色分色 ============
+   七個分組各一色（左側色條＋標題同色），標籤欄再分：干朱／支靛／五行綠／神煞紫／其餘灰 */
+.ssref-b.combo .ssref-gh{padding-left:10px;border-radius:0 4px 4px 0;letter-spacing:.01em}
+.ssref-b.combo .ssref-r>b>i{font-style:normal}
+.ssref-b.combo .ssref-r>span{color:#6b6152}
+.ck-gan{color:#b03528;font-weight:700}
+.ck-zhi{color:#2a5aa8;font-weight:700}
+.ck-wx{color:#16714f;font-weight:700}
+.ck-ss{color:#7b3fa0;font-weight:700}
+.ck-ot{color:#9a8f7c;font-weight:400}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V48</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V49</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3268,6 +3279,48 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     // 組合象意：只保留「組成的干／支全部出現在本課四位」的條目
     // 四位＝人元（干）、貴神（干＋支）、將神（干＋支）、地分（支）
     var GAN_SET='甲乙丙丁戊己庚辛壬癸', ZHI_SET='子丑寅卯辰巳午未申酉戌亥';
+    /* 分色：每個分組一色（左側色條＋標題同色），標籤再依「干／支／五行／神煞」分色；
+       原本整卡同色，段落與角色都分不出來。 */
+    var CK_GROUP_COLOR = {
+      '五行・干支・地支二三組合':'#b03528',
+      '干支與宮位組合':'#7b3fa0',
+      '格局與干支組合':'#0e7490',
+      '貴神與神煞組合':'#95601a',
+      '象意交叉組合':'#2a5aa8',
+      '病症與雜症':'#a3246e',
+      '刑沖合害法則與人物象意':'#c2410c'
+    };
+    var CK_SS=['四大空亡','空亡','旬空','天羅地網','青龍','騰蛇','螣蛇','朱雀','六合','勾陳','天后','太陰','玄武','太常','白虎','天空','貴神','天乙','驛馬','天德','月德','劫煞','華蓋','將星','羊刃','祿神','災煞','亡神'];
+    var CK_WX='木火土金水';
+    var CK_POS4=['人元','貴神','將神','地分'];
+    var CK_POS_CLS={'人元':'p-ren','貴神':'p-shen','將神':'p-jiang','地分':'p-fang'};
+    var CK_POS1={'干':'人元','神':'貴神','將':'將神','方':'地分'};
+    function comboKeyHTML(k){
+      var s=String(k), out='', i=0, j, hit;
+      while(i<s.length){
+        hit='';
+        // 1) 四位名（人元／貴神／將神／地分）→ 位名四色
+        for(j=0;j<CK_POS4.length;j++){
+          if(s.substr(i,CK_POS4[j].length)===CK_POS4[j]){ hit=CK_POS4[j]; break; }
+        }
+        if(hit){ out+='<span class="gl-pos '+CK_POS_CLS[hit]+'">'+hit+'</span>'; i+=hit.length; continue; }
+        // 2) 神煞名 → 紫
+        hit='';
+        for(j=0;j<CK_SS.length;j++){
+          if(s.substr(i,CK_SS[j].length)===CK_SS[j]){ hit=CK_SS[j]; break; }
+        }
+        if(hit){ out+='<i class="ck-ss">'+hit+'</i>'; i+=hit.length; continue; }
+        var c=s[i];
+        if(GAN_SET.indexOf(c)>=0) out+='<i class="ck-gan">'+c+'</i>';
+        else if(ZHI_SET.indexOf(c)>=0) out+='<i class="ck-zhi">'+c+'</i>';
+        else if(CK_WX.indexOf(c)>=0) out+='<i class="ck-wx">'+c+'</i>';
+        // 3) 單字簡寫 干／神／將／方 → 同四位色
+        else if(CK_POS1[c]) out+='<span class="gl-pos '+CK_POS_CLS[CK_POS1[c]]+'">'+c+'</span>';
+        else out+='<i class="ck-ot">'+c+'</i>';
+        i++;
+      }
+      return out;
+    }
     var keTokens=[];
     order.forEach(function(o){
       [o.gan,o.zhi].forEach(function(v){
@@ -3289,9 +3342,10 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     var comboCount = comboGroups.reduce(function(a,g){return a+g.items.length;},0);
     var comboRefHTML = '<div class="ssref"><div class="ssref-b combo">'+
       (comboGroups.length?comboGroups.map(function(g){
-        return '<div class="ssref-g"><b class="ssref-gh">'+g.g+'</b>'+
+        var gc = CK_GROUP_COLOR[g.g] || '#9c2b1f';
+        return '<div class="ssref-g"><b class="ssref-gh" style="color:'+gc+';box-shadow:inset 3px 0 0 '+gc+'">'+g.g+'</b>'+
           g.items.map(function(it){
-            return '<div class="ssref-r"><b>'+it[0]+'</b><span>'+it[1]+'</span></div>';
+            return '<div class="ssref-r"><b>'+comboKeyHTML(it[0])+'</b><span>'+it[1]+'</span></div>';
           }).join('')+'</div>';
       }).join(''):'<div class="ssref-r"><span class="ssref-full">本課未見對應組合象意。</span></div>')+
       '</div></div>';
