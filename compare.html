@@ -34,6 +34,10 @@
   .opt{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
     background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 16px 18px;
     transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+  .opt.picked{border-color:#5c332b;box-shadow:0 0 0 1px rgba(156,43,31,.35),0 24px 48px -34px #000}
+  .picked-tag{position:absolute;top:-11px;right:14px;background:#9c2b1f;color:#fff8ec;font-size:10.5px;
+    font-weight:700;letter-spacing:.16em;padding:4px 10px 4px 12px;border-radius:99px;
+    box-shadow:0 10px 20px -12px #000}
   .opt:hover{transform:translateY(-3px);border-color:#4a4a54;box-shadow:0 26px 50px -30px #000}
   .opt .row1{display:flex;align-items:center;gap:10px}
   .badge{width:26px;height:26px;flex:0 0 26px;border-radius:7px;display:grid;place-items:center;
@@ -88,7 +92,8 @@
 
   <main class="grid">
 
-    <a class="opt a" href="theme-a.html">
+    <a class="opt a picked" href="theme-a.html">
+      <span class="picked-tag">已採用 · 第 38 版</span>
       <div class="row1"><div class="badge">A</div><h2>宣紙文楷</h2></div>
       <p class="pos">淺米紙底 · 楷書 · 朱紅</p>
       <div class="sw">
@@ -104,7 +109,7 @@
         <img src="thumb-a-top.jpg" alt="A 版首頁">
         <div class="pip"><span>課盤</span><img src="thumb-a-pan.jpg" alt="A 版課盤"></div>
       </div>
-      <div class="go">開啟 A 版<span>→</span></div>
+      <div class="go">開啟 A 版（現行正式版）<span>→</span></div>
     </a>
 
     <a class="opt b" href="theme-b.html">
@@ -150,7 +155,7 @@
   <div class="note">
     <b>說明</b>：三版都是「主題層」蓋在現有 <b>index-37</b> 之上，結構與程式完全沒動，所以功能一致、可隨時換回。
     另外三版都順手修了一個手機上的小問題：四柱下方的「月建／月將／日旬空／四大空亡」原本四格並排會把「寅（功曹）」斷成兩行，現改為 2×2，不再孤字換行。
-    選定後我會把該版併入正式 <b>index.html</b>（依版號規則存為 index-38）。
+    <b>A 宣紙文楷已選定</b>，正式 <b>index.html</b> 已套用（另存為 <b>index-38.html</b>，index-37 與更早版本全部保留）。
   </div>
 
   <footer>
