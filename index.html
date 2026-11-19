@@ -2413,8 +2413,10 @@
       '</div></details>';
 
     // 貴神／將神簡記：課式名稱即為查表鍵；本課使用者列於前
-    var gsNow = GS.map(function(x){return x.n;});
-    var jgNow = ZHI_ORDER.map(function(z){return JIANG_NAME[z];});
+    // GS／JIANG_NAME 定義於 JK 模組內，renderPan 所在作用域不可見；
+    // 改以簡記表的鍵取得十二貴神與十二月將名稱（順序與模組定義一致）。
+    var gsNow = Object.keys(GS_NOTE);
+    var jgNow = Object.keys(JG_NOTE);
     var gsUse = p.shen.name, jgUse = p.jiang.name;
     function godRefHTML(dict, list, use){
       return '<details class="ssref"><summary>本課：'+(use||'無')+'，點擊展開十二項</summary><div class="ssref-b">'+
