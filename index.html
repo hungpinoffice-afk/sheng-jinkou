@@ -213,6 +213,11 @@
   .ssref-b.godnote .godnote-full{grid-column:1/-1}
   .ssref-b.godnote .godnote-r{display:contents}
   .ssref-b.godnote .godnote-r>b{color:#d9c59a;font-weight:600;white-space:nowrap;font-family:"Noto Serif TC",serif}
+  /* 相鄰五行通關法：單欄整行敘述，標籤粗體接續內容，不再分左右兩欄 */
+  .near-row{font-size:11.5px;line-height:1.7;color:#7b8694}
+  .near-row>b{color:#d9c59a;font-weight:600;font-family:"Noto Serif TC",serif;white-space:nowrap}
+  .near-row>b.near-tong{color:var(--gold)}
+  .near-row.near-empty{color:var(--dim)}
   /* 五行性格特徵行業：性格／特徵／行業各自成段，續行縮排對齊標籤後文字 */
   .wx-body{min-width:0}
   .wx-line{display:block;padding-left:3.117em;text-indent:-3.117em}
@@ -2775,10 +2780,10 @@
     // 相鄰五行：僅判斷相鄰三位（人元—貴神—將神—地分）的相克組合；只列本課命中
     var nearHitHTML=(r.nearHit||[]).length
       ? r.nearHit.map(function(n){
-          return '<div class="ssref-r"><b>'+n.from+' → '+n.to+'（'+n.wx+'）</b><span>'+n.dir+'：'+n.text+
-            (n.tongText?'<br><b style="color:var(--gold)">通關法：</b>'+n.tongText:'')+'</span></div>';
+          return '<div class="near-row"><b>'+n.from+' → '+n.to+'（'+n.wx+'）</b>　'+n.dir+'：'+n.text+
+            (n.tongText?'　<b class="near-tong">[通關法]</b>'+n.tongText:'')+'</div>';
         }).join('')
-      : '<div class="ssref-r"><span>本課相鄰三位未見相克組合。</span></div>';
+      : '<div class="near-row near-empty">本課相鄰三位未見相克組合。</div>';
     var nearCardHTML='<div class="card">'+
       '<div class="c-head"><div class="c-no">鄰</div><div class="c-title">相鄰五行（課內四位）· 通關法</div><div class="c-note">命中 '+(r.nearHit||[]).length+' 組</div></div>'+
       nearHitHTML+
