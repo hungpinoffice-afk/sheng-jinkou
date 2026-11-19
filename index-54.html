@@ -3596,6 +3596,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     var H=M+c1H+14+c2H+M;                              // 531
     var cv=document.createElement('canvas');
     cv.width=W*dpr;cv.height=H*dpr;
+    cv.style.width=W+'px';cv.style.height=H+'px';   /* 顯示時才不會被 2 倍像素撐大 */
     var ctx=cv.getContext('2d');
     ctx.scale(dpr,dpr);
     ctx.fillStyle=PIC.paper;ctx.fillRect(0,0,W,H);
