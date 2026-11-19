@@ -205,11 +205,12 @@
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
   .rel-detail .rel-seg>span{display:block;min-width:0}
-  /* 并列項目：標題欄與內容欄對齊；內容換行續行對齊到標題後的文字起點 */
-  .rel-detail .ex-lines{display:grid;min-width:0}
-  .rel-detail .ex-line{display:grid;min-width:0}
-  .rel-detail .ex-line>b{white-space:nowrap;font-weight:400}
-  .rel-detail .ex-line>span{display:block;min-width:0}
+  /* 斷例：每列自動換行的續行對齊到 a、b、之後的文字起點 */
+  .rel-detail .ex-line{display:block;padding-left:1.6em;text-indent:-1.6em}
+  /* 「a、子卯：內容」改標題欄＋內容欄，續行對齊內容第一個字（如糾對齊凡） */
+  .rel-detail .ex-line.cap{display:grid;padding-left:0;text-indent:0;gap:0}
+  .rel-detail .ex-line.cap>.ex-t{white-space:nowrap}
+  .rel-detail .ex-line.cap>.ex-c{display:block;min-width:0}
 
   /* ── 24 節氣（起課時間卡標題列） ── */
   .jqwrap{margin-left:auto;position:relative;flex:0 1 auto;min-width:0}
@@ -2623,25 +2624,32 @@
       if(d.wai) seg.push(['〔補充〕',d.wai]);
       if(d.image) seg.push(['〔象意〕',d.image]);
       if(d.ex) seg.push(['〔斷例〕',d.ex]);
-      function emW(s){
+      function exWidth(s){
         var w=0;
-        for(var i=0;i<s.length;i++) w += /[\x00-\xff]/.test(s.charAt(i)) ? 0.55 : 1;
-        return w+0.2;
+        for(var i=0;i<s.length;i++){ w += s.charCodeAt(i)<128 ? 0.55 : 1; }
+        return w;
+      }
+      // 「a、子卯：凡事…」→ 標題欄（a、子卯：）＋內容欄（凡事…）；續行自然對齊內容起點
+      function exLines(txt){
+        var arr=txt.split('\n').map(function(line){
+          var i=line.indexOf('：');
+          if(i>0 && i<line.length-1){
+            var head=line.slice(0,i+1), w=exWidth(head);
+            if(w<=6.5) return { head:head, body:line.slice(i+1), w:w };
+          }
+          return { line:line };
+        });
+        var maxW=0;
+        arr.forEach(function(o){ if(o.head && o.w>maxW){ maxW=o.w; } });
+        if(maxW>0){ maxW=maxW+0.5; }
+        return arr.map(function(o){
+          if(!o.head){ return '<span class="ex-line">'+o.line+'</span>'; }
+          return '<span class="ex-line cap" style="grid-template-columns:'+maxW.toFixed(2)+'em 1fr">'+
+            '<span class="ex-t">'+o.head+'</span><span class="ex-c">'+o.body+'</span></span>';
+        }).join('');
       }
       var body=seg.map(function(p){
-        var content;
-        if(p[1].indexOf('\n')>=0){
-          var lines=p[1].split('\n').map(function(line){
-            var m=line.match(/^([^：]*：)/);
-            var t=m ? m[1] : ((line.match(/^[a-z]、/)||[''])[0]);
-            return {t:t, c:line.slice(t.length)};
-          });
-          var maxW=0;
-          lines.forEach(function(l){ maxW=Math.max(maxW, emW(l.t)); });
-          content='<span class="ex-lines" style="grid-template-columns:'+maxW.toFixed(2)+'em 1fr">'+
-            lines.map(function(l){return '<span class="ex-line"><b>'+l.t+'</b><span>'+l.c+'</span></span>';}).join('')+
-            '</span>';
-        } else content=p[1];
+        var content = p[1].indexOf('\n')>=0 ? exLines(p[1]) : p[1];
         return '<div class="rel-seg"><b>'+p[0]+'</b><span>'+content+'</span></div>';
       }).join('');
       return '<div class="ssref-r rel-detail"><b>'+t+'</b><span>'+body+'</span></div>';
