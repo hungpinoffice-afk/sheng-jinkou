@@ -1259,47 +1259,53 @@
       p.shenSha = p.shenShaList.join('·');
     });
 
-    // ---- 課中關係（依關係.pptx 十一類：生克比合刑沖破害絕會）----
+    // ---- 課中關係：只取課式紅框四字（人元干、貴神支、將神支、地分支）----
     var rels = [];
     var relKinds = {}; // 本課命中的關係類別，用於帶出對應說明
     var pts = [
-      { t: '將神', i: jiangShenIdx }, { t: '貴神', i: guiShenZhiIdx }, { t: '地分', i: fangIdx },
-      { t: '月建', i: monthIdx }, { t: '日支', i: dayIdx % 12 }
+      { t: '人元', i: null, z: P.ren.gan || '', wx: P.ren.wx },
+      { t: '貴神', i: guiShenZhiIdx, z: ZHI[guiShenZhiIdx], wx: ZHI_WX[guiShenZhiIdx] },
+      { t: '將神', i: jiangShenIdx, z: ZHI[jiangShenIdx], wx: ZHI_WX[jiangShenIdx] },
+      { t: '地分', i: fangIdx, z: ZHI[fangIdx], wx: ZHI_WX[fangIdx] }
     ];
     for (var a = 0; a < pts.length; a++) {
       for (var b = a + 1; b < pts.length; b++) {
-        var pi = pts[a].i, pj = pts[b].i, wi = ZHI_WX[pi], wj = ZHI_WX[pj];
-        var tag = pts[a].t + ZHI[pi] + '・' + pts[b].t + ZHI[pj];
-        if (pairIn(LIU_HE, pi, pj)) { rels.push(tag + ' 六合'); relKinds['六合'] = true; }
-        if (pairIn(LIU_CHONG, pi, pj)) { rels.push(tag + ' 相沖'); relKinds['沖'] = true; }
-        if (pairIn(LIU_PO, pi, pj)) { rels.push(tag + ' 六破'); relKinds['六破'] = true; }
-        if (pairIn(LIU_HAI, pi, pj)) { rels.push(tag + ' 六害'); relKinds['六害'] = true; }
-        if (pairIn(XIANG_JUE, pi, pj)) { rels.push(tag + ' 相絕'); relKinds['絕'] = true; }
-        if (pairIn(SAN_XING[0], pi, pj)) { rels.push(tag + ' 無禮之刑'); relKinds['三刑'] = true; }
+        var pa = pts[a], pb = pts[b], wi = pa.wx, wj = pb.wx;
+        var tag = pa.t + pa.z + '・' + pb.t + pb.z;
+        // 地支間才論合沖刑破害絕；人元為天干，只論五行生克比
+        if (pa.i !== null && pb.i !== null) {
+          if (pairIn(LIU_HE, pa.i, pb.i)) { rels.push(tag + ' 六合'); relKinds['六合'] = true; }
+          if (pairIn(LIU_CHONG, pa.i, pb.i)) { rels.push(tag + ' 相沖'); relKinds['沖'] = true; }
+          if (pairIn(LIU_PO, pa.i, pb.i)) { rels.push(tag + ' 六破'); relKinds['六破'] = true; }
+          if (pairIn(LIU_HAI, pa.i, pb.i)) { rels.push(tag + ' 六害'); relKinds['六害'] = true; }
+          if (pairIn(XIANG_JUE, pa.i, pb.i)) { rels.push(tag + ' 相絕'); relKinds['絕'] = true; }
+          if (pairIn(SAN_XING[0], pa.i, pb.i)) { rels.push(tag + ' 無禮之刑'); relKinds['三刑'] = true; }
+        }
         if (wi === wj) { rels.push(tag + ' 相比'); relKinds['比'] = true; }
-        else if (SHENG[wi] === wj) { rels.push(pts[a].t + ZHI[pi] + '生' + pts[b].t + ZHI[pj]); relKinds['生'] = true; }
-        else if (SHENG[wj] === wi) { rels.push(pts[b].t + ZHI[pj] + '生' + pts[a].t + ZHI[pi]); relKinds['生'] = true; }
-        else if (KE[wi] === wj) { rels.push(pts[a].t + ZHI[pi] + '克' + pts[b].t + ZHI[pj]); relKinds['克'] = true; }
-        else { rels.push(pts[b].t + ZHI[pj] + '克' + pts[a].t + ZHI[pi]); relKinds['克'] = true; }
+        else if (SHENG[wi] === wj) { rels.push(pa.t + pa.z + '生' + pb.t + pb.z); relKinds['生'] = true; }
+        else if (SHENG[wj] === wi) { rels.push(pb.t + pb.z + '生' + pa.t + pa.z); relKinds['生'] = true; }
+        else if (KE[wi] === wj) { rels.push(pa.t + pa.z + '克' + pb.t + pb.z); relKinds['克'] = true; }
+        else { rels.push(pb.t + pb.z + '克' + pa.t + pa.z); relKinds['克'] = true; }
       }
     }
+    var zpts = pts.filter(function (p) { return p.i !== null; });
     for (var s = 0; s < SAN_HE.length; s++) {
       var g3 = SAN_HE[s].z, hit = [];
-      pts.forEach(function (p) { if (g3.indexOf(p.i) >= 0 && hit.indexOf(ZHI[p.i]) < 0) hit.push(ZHI[p.i]); });
+      zpts.forEach(function (p) { if (g3.indexOf(p.i) >= 0 && hit.indexOf(ZHI[p.i]) < 0) hit.push(ZHI[p.i]); });
       if (hit.length >= 2) { rels.push('三合半合：' + hit.join('') + '（' + SAN_HE[s].wx + '局）'); relKinds['三合'] = true; }
     }
     for (var sx = 1; sx < SAN_XING.length; sx++) {
       var gx = SAN_XING[sx], hx = [];
-      pts.forEach(function (p) { if (gx.indexOf(p.i) >= 0 && hx.indexOf(ZHI[p.i]) < 0) hx.push(ZHI[p.i]); });
+      zpts.forEach(function (p) { if (gx.indexOf(p.i) >= 0 && hx.indexOf(ZHI[p.i]) < 0) hx.push(ZHI[p.i]); });
       if (hx.length >= 2) { rels.push('三刑（無恩／持勢）：' + hx.join('')); relKinds['三刑'] = true; }
     }
     ZI_XING.forEach(function (zx) {
-      var n = pts.filter(function (p) { return p.i === zx; }).length;
+      var n = zpts.filter(function (p) { return p.i === zx; }).length;
       if (n >= 2) { rels.push('自刑：' + ZHI[zx] + '見' + ZHI[zx]); relKinds['三刑'] = true; }
     });
     for (var h = 0; h < HUI_JU.length; h++) {
       var hz = HUI_JU[h].z, hhit = [];
-      pts.forEach(function (p) { if (hz.indexOf(p.i) >= 0 && hhit.indexOf(ZHI[p.i]) < 0) hhit.push(ZHI[p.i]); });
+      zpts.forEach(function (p) { if (hz.indexOf(p.i) >= 0 && hhit.indexOf(ZHI[p.i]) < 0) hhit.push(ZHI[p.i]); });
       if (hhit.length === 3) { rels.push('三會：' + hhit.join('') + '（' + HUI_JU[h].n + '）'); relKinds['會局'] = true; }
     }
 
