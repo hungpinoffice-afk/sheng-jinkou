@@ -945,13 +945,26 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 .near-row>b.near-tong{color:#0e7490;background:#eaf4f6;border:1px solid rgba(14,116,144,.35);
   border-radius:3px;padding:0 .34em;font-size:.92em}
 
+/* ============ 課中關係籌碼：位名四色＋關係色票 ============
+   原本整顆籌碼同一顏色（生全綠、克全紅），看不清「誰對誰」。
+   改為籌碼內拆色：位名四色沿用宮位關係，生／克／合…做成實心色票，干支留墨色。 */
+.rel-cat .chip.rl{color:#241d15;letter-spacing:0;border-radius:4px}
+.chip.rl>.gl-pos{font-weight:700;letter-spacing:.01em}
+.chip.rl>.rl-z{font-weight:600;color:#241d15;margin:0 .02em}
+.chip.rl>.rl-zhi{font-weight:600;color:#241d15}
+.chip.rl>.rl-dot{color:#bcae94;margin:0 .12em;font-weight:400}
+.chip.rl>.rl-col{color:#a89a83;margin:0 .1em 0 .02em}
+.chip.rl>.rl-paren{color:#8d8373;font-size:.92em;margin-right:.1em}
+.rl-w{font-style:normal;font-size:.84em;line-height:1.5;padding:0 .38em;margin:0 .16em;border-radius:3px;
+  color:#fffdf6;font-weight:700;letter-spacing:0;display:inline-block;position:relative;top:-.03em}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V47</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V48</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -2889,6 +2902,56 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     ]}
   ];;
   function chip(t,cls){return '<span class="chip '+(cls||'')+'">'+t+'</span>';}
+
+  /* ---- 課中關係籌碼：把「位名＋干支＋關係」拆成彩色片段 ----
+     位名四色沿用宮位關係（人元紫／貴神藍／將神綠／地分赭），關係字做成實心色票，
+     同一個籌碼內就能看出「誰對誰、生還是克」，不必再靠整顆籌碼的單一顏色。 */
+  var RC_POS = { '人元':'p-ren', '貴神':'p-shen', '將神':'p-jiang', '地分':'p-fang' };
+  var RC_COLOR = {
+    '生':'#2f7d5e', '克':'#b03528', '比':'#8d8373',
+    '合':'#0e7490', '六合':'#0e7490', '三合':'#0e7490',
+    '沖':'#c2410c', '相沖':'#c2410c',
+    '破':'#6b4a2a', '六破':'#6b4a2a',
+    '害':'#a3246e', '六害':'#a3246e',
+    '絕':'#8e1b3a', '相絕':'#8e1b3a',
+    '相比':'#8d8373', '刑':'#7b3fa0', '會':'#2a5aa8'
+  };
+  function rcPos(n){ return '<span class="gl-pos '+(RC_POS[n]||'')+'">'+n+'</span>'; }
+  function rcWord(w, c){
+    return '<i class="rl-w" style="background:'+(c||RC_COLOR[w]||'#6b7280')+'">'+w+'</i>';
+  }
+  function relChip(t){
+    var m;
+    // A. 位名＋干支＋生／克＋位名＋干支：人元庚生貴神寅
+    m = /^(人元|貴神|將神|地分)([\u4e00-\u9fa5]?)(生|克)(人元|貴神|將神|地分)([\u4e00-\u9fa5]?)$/.exec(t);
+    if (m) {
+      return '<span class="chip rl">'+rcPos(m[1])+'<b class="rl-z">'+m[2]+'</b>'+rcWord(m[3])+
+             rcPos(m[4])+'<b class="rl-z">'+m[5]+'</b></span>';
+    }
+    // B. 位名干支・位名干支＋關係名：貴神亥・將神寅 六合／六破／相沖…
+    m = /^(人元|貴神|將神|地分)([\u4e00-\u9fa5]?)\s*・\s*(人元|貴神|將神|地分)([\u4e00-\u9fa5]?)\s+(.+)$/.exec(t);
+    if (m) {
+      var w = m[5].replace(/\s+/g,'');
+      var wl = RC_COLOR[w] ? rcWord(w) : '<b class="rl-z">'+m[5]+'</b>';
+      return '<span class="chip rl">'+rcPos(m[1])+'<b class="rl-z">'+m[2]+'</b>'+
+             '<span class="rl-dot">・</span>'+rcPos(m[3])+'<b class="rl-z">'+m[4]+'</b>'+wl+'</span>';
+    }
+    // C. 三合半合：寅戌（火局）／三刑（無恩／持勢）：寅巳／自刑：寅見寅／三會：寅卯辰…
+    m = /^([^：]+)：(.*)$/.exec(t);
+    if (m) {
+      var head = m[1], key = '';
+      if (head.indexOf('三合') === 0) key = '#0e7490';
+      else if (head.indexOf('刑') >= 0) key = '#7b3fa0';
+      else if (head.indexOf('會') >= 0) key = '#2a5aa8';
+      var hp = /^([^（]+)(（[\s\S]*）)?$/.exec(head);
+      var core = hp ? hp[1] : head, paren = (hp && hp[2]) ? hp[2] : '';
+      var pill = key ? rcWord(core, key) : '<b class="rl-z">'+core+'</b>';
+      var tail = m[2].replace(/([子丑寅卯辰巳午未申酉戌亥])/g, '<b class="rl-zhi">$1</b>');
+      return '<span class="chip rl">'+pill+(paren?'<span class="rl-paren">'+paren+'</span>':'')+
+             '<span class="rl-col">：</span>'+tail+'</span>';
+    }
+    return chip(t);
+  }
   function wxChip(w){return '<span class="chip wx wx-'+w+'" title="'+wxTraitTip(w)+'">'+w+'</span>';}
   function yyChip(o){return '<span class="chip yy '+(o.yang?'yy-yang':'yy-yin')+'" title="'+(o.yang?'陽':'陰')+'">'+(o.yang?'+':'−')+'</span>';}
   function kongChip(o){
@@ -2965,7 +3028,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
                   '刑':'xing','沖':'chong','破':'po','害':'hai','絕':'jue','會':'hui'};
     var rels=relCats.map(function(c){
       var items=(r.relGroups&&r.relGroups[c])||[];
-      return '<div class="rel-cat c-'+REL_SLUG[c]+'"><b>'+c+'：</b>'+(items.length?items.map(chip).join(''):'<span style="color:var(--dim);font-size:12.5px">無</span>')+'</div>';
+      return '<div class="rel-cat c-'+REL_SLUG[c]+'"><b>'+c+'：</b>'+(items.length?items.map(relChip).join(''):'<span style="color:var(--dim);font-size:12.5px">無</span>')+'</div>';
     }).join('');
 
     // 課中關係：依本課命中類別帶出規則書對應象意
