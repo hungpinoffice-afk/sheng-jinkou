@@ -126,7 +126,7 @@
   .sz .z{font-family:"Noto Serif TC",serif;font-size:21px;line-height:1.15;color:#cfc3a9}
   .sz .col.dy .g,.sz .col.dy .z{color:var(--gold)}
 
-  .kvgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+  .kvgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
   .kv{background:#0e1318;border:1px solid rgba(58,68,80,.4);border-radius:10px;padding:8px 10px}
   .kv .k{font-size:10.5px;color:var(--dim);letter-spacing:.08em}
   .kv .v{font-size:13.5px;color:#e6dcc8;margin-top:1px}
@@ -2709,8 +2709,8 @@
       '<div class="kvgrid">'+
         '<div class="kv"><div class="k">月建</div><div class="v">'+r.monthJian+'（'+r.monthWx+'）</div></div>'+
         '<div class="kv"><div class="k">月將</div><div class="v">'+r.jiang.zhi+'（'+r.jiang.name+'）</div></div>'+
-        '<div class="kv"><div class="k">日空（旬空）</div><div class="v">'+r.kong.join('、')+'</div></div>'+
-        '<div class="kv"><div class="k">貴人</div><div class="v">'+r.gui.zhi+'（'+(r.gui.day?'晝貴':'夜貴')+'·'+(r.gui.forward?'順':'逆')+'）'+(r.gui.rev?'<span style="color:#c9a25c;font-size:11px">辛壬癸反</span>':'')+'</div></div>'+
+        '<div class="kv"><div class="k">日旬空</div><div class="v">'+r.kong.join('、')+'</div></div>'+
+        '<div class="kv" title="四大空亡：子午旬無水、寅申旬無金；甲辰／甲戌二旬無四大空亡"><div class="k">四大空亡</div><div class="v">'+(r.kongInfo.fvWx||'無')+'</div></div>'+
       '</div>'+
     '</div>'+
 
