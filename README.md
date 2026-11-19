@@ -4,7 +4,7 @@
 
 ## 網址
 
-https://hungpinoffice-afk.github.io/yunqi-jinkou/
+https://hungpinoffice-afk.github.io/sheng-jinkou/
 
 ## 功能
 
