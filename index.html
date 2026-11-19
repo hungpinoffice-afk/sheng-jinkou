@@ -1344,20 +1344,23 @@
     ];
 
     // ---- 宮位關係：依本課四位生克自動帶出對應斷語 ----
-    var gongPairs = [
-      ['人元', '貴神', P.ren.wx, P.shen.wx], ['人元', '將神', P.ren.wx, P.jiang.wx], ['人元', '地分', P.ren.wx, P.fang.wx],
-      ['貴神', '人元', P.shen.wx, P.ren.wx], ['貴神', '將神', P.shen.wx, P.jiang.wx], ['貴神', '地分', P.shen.wx, P.fang.wx],
-      ['將神', '人元', P.jiang.wx, P.ren.wx], ['將神', '貴神', P.jiang.wx, P.shen.wx], ['將神', '地分', P.jiang.wx, P.fang.wx],
-      ['地分', '人元', P.fang.wx, P.ren.wx], ['地分', '貴神', P.fang.wx, P.shen.wx], ['地分', '將神', P.fang.wx, P.jiang.wx]
+    // 顯示順序（兩兩配對，同一對只出一條，方向依實際生克）：
+    // 人元─貴神 → 人元─將神 → 人元─地分 → 貴神─將神 → 貴神─地分 → 將神─地分
+    var GONG_ORD = [
+      ['人元', '貴神'], ['人元', '將神'], ['人元', '地分'],
+      ['貴神', '將神'], ['貴神', '地分'], ['將神', '地分']
     ];
-    var gongHit = gongPairs.map(function (q) {
-      var k = q[0] + '克' + q[1], s = q[0] + '生' + q[1], b = q[0] + '比' + q[1];
-      var rel, key;
-      if (q[2] === q[3]) { key = b; rel = '比和'; }
-      else if (SHENG[q[2]] === q[3]) { key = s; rel = '生'; }
-      else if (KE[q[2]] === q[3]) { key = k; rel = '克'; }
-      else { return null; } // 反向由另一組處理
-      return { key: key, from: q[0], to: q[1], wx: q[2] + '→' + q[3], rel: rel, text: window.GONG_NOTE[key] || '' };
+    var gongWX = { '人元': P.ren.wx, '貴神': P.shen.wx, '將神': P.jiang.wx, '地分': P.fang.wx };
+    var gongHit = GONG_ORD.map(function (pair) {
+      var a = pair[0], b = pair[1], wa = gongWX[a], wb = gongWX[b];
+      var key, rel, from, to;
+      if (wa === wb) { from = a; to = b; key = a + '比' + b; rel = '比和'; }
+      else if (SHENG[wa] === wb) { from = a; to = b; key = a + '生' + b; rel = '生'; }
+      else if (KE[wa] === wb) { from = a; to = b; key = a + '克' + b; rel = '克'; }
+      else if (SHENG[wb] === wa) { from = b; to = a; key = b + '生' + a; rel = '生'; }
+      else if (KE[wb] === wa) { from = b; to = a; key = b + '克' + a; rel = '克'; }
+      else { return null; }
+      return { key: key, from: from, to: to, wx: gongWX[from] + '→' + gongWX[to], rel: rel, text: window.GONG_NOTE[key] || '' };
     }).filter(Boolean);
 
     // ---- 相鄰五行：課內四位僅取相鄰兩位，命中相克即帶出對應斷語 ----
@@ -2673,9 +2676,9 @@
       ? r.gongHit.map(function(g){
           return '<div class="ssref-r"><b>'+g.key+'（'+g.wx+'）</b><span>'+g.text+'</span></div>';
         }).join('')
-      : '<div class="ssref-r"><span>本課四位間無生克（皆比和）。</span></div>';
+      : '<div class="ssref-r"><span class="ssref-full">本課四位間無生克（皆比和）。</span></div>';
     // 只顯示本課四位實際命中的宮位生克，其餘定位與全部斷語不再展開
-    var gongRefHTML='<div class="ssref"><div class="ssref-b">'+gongHitHTML+'</div></div>';
+    var gongRefHTML='<div class="ssref"><div class="ssref-b combo">'+gongHitHTML+'</div></div>';
 
     // 相鄰五行：僅判斷相鄰三位（人元—貴神—將神—地分）的相克組合；只列本課命中
     var nearHitHTML=(r.nearHit||[]).length
