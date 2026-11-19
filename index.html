@@ -232,6 +232,10 @@
   .rel-detail .ex-line.cap{display:grid;padding-left:0;text-indent:0;gap:0}
   .rel-detail .ex-line.cap>.ex-t{white-space:nowrap}
   .rel-detail .ex-line.cap>.ex-c{display:block;min-width:0}
+  /* 斷例中出現本課四位地支者：青綠底色＋左側色條，便於一眼辨識 */
+  .rel-detail .ex-line.ex-hit{background:rgba(24,140,96,.10);box-shadow:inset 3px 0 0 rgba(24,140,96,.55);color:#12664a;border-radius:3px}
+  .rel-detail .ex-hit-in{color:#12664a;background:rgba(24,140,96,.11);border-radius:3px;padding:0 1px}
+  .rel-legend{font-size:11px;color:#12664a;opacity:.9;margin:2px 0 5px}
 
   /* ── 24 節氣（起課時間卡標題列） ── */
   .jqwrap{margin-left:auto;position:relative;flex:0 1 auto;min-width:0}
@@ -413,6 +417,9 @@
   .ss-b,.ssref-r{color:#7d7466}
   .ssref-b.godnote{color:#7d7466}
   .ssref-b.godnote .godnote-r>b{color:#f1cd90}
+  .rel-detail .ex-line.ex-hit{background:rgba(92,210,160,.13);box-shadow:inset 3px 0 0 rgba(92,210,160,.65);color:#a6ecc9}
+  .rel-detail .ex-hit-in{color:#a6ecc9;background:rgba(92,210,160,.14)}
+  .rel-legend{color:#a6ecc9}
   .ssref summary{color:#e2b46e}
   .ssref-r b{color:#f1cd90}
   .ssref{border-top-color:rgba(92,78,60,.55)}
@@ -2640,6 +2647,51 @@
     }).join('');
 
     // 課中關係：依本課命中類別帶出規則書對應象意
+    // 斷例若確實對應本課（五行生克對相同、或地支組合兩支以上落在本課），以青綠底色標示
+    var keZhiChars = [p.shen.zhi, p.jiang.zhi, p.fang.zhi].filter(function(v, i, a){ return v && a.indexOf(v) === i; });
+    var relAnyHit = false;
+    var WX5='木火土金水', ZHI12='子丑寅卯辰巳午未申酉戌亥';
+    var SH5={木:'火',火:'土',土:'金',金:'水',水:'木'};
+    var KE5={木:'土',土:'水',水:'火',火:'金',金:'木'};
+    var keWxList=[p.ren.wx,p.shen.wx,p.jiang.wx,p.fang.wx];
+    var setSheng={}, setKe={}, setBi={};
+    for(var _i=0;_i<4;_i++){ for(var _j=_i+1;_j<4;_j++){
+      var _A=keWxList[_i], _B=keWxList[_j];
+      if(_A===_B){ setBi[_A]=1; }
+      else if(SH5[_A]===_B){ setSheng[_A+_B]=1; }
+      else if(SH5[_B]===_A){ setSheng[_B+_A]=1; }
+      else if(KE5[_A]===_B){ setKe[_A+_B]=1; }
+      else { setKe[_B+_A]=1; }
+    }}
+    function firstWx(s){ for(var i=0;i<s.length;i++){ if(WX5.indexOf(s[i])>=0) return s[i]; } return ''; }
+    function lastWx(s){ for(var i=s.length-1;i>=0;i--){ if(WX5.indexOf(s[i])>=0) return s[i]; } return ''; }
+    function inKeZhi(c){ return keZhiChars.indexOf(c)>=0; }
+    // 一行（或一句）是否對應本課：先看生／克／比的五行對，再看地支組合是否兩支以上命中
+    function lineHit(raw){
+      if(!raw) return false;
+      var wxRel=false, hit=false;
+      if(raw.indexOf('生')>=0){
+        wxRel=true;
+        var ps=raw.split('生');
+        var a=lastWx(ps[0]), b=firstWx(ps.slice(1).join('生'));
+        if(a&&b&&setSheng[a+b]) hit=true;
+      }
+      if(raw.indexOf('克')>=0){
+        wxRel=true;
+        var pk=raw.split('克');
+        var c=lastWx(pk[0]), d=firstWx(pk.slice(1).join('克'));
+        if(c&&d&&setKe[c+d]) hit=true;
+      }
+      if(raw.indexOf('比')>=0){
+        wxRel=true;
+        var w=lastWx(raw.split('比')[0]);
+        if(w&&setBi[w]) hit=true;
+      }
+      if(hit) return true;
+      if(wxRel) return false;   // 生／克／比句只看五行對，不再用地支比對
+      var zs=raw.split('').filter(function(ch){ return ZHI12.indexOf(ch)>=0; });
+      return zs.length>=2 && zs.filter(inKeZhi).length>=2;
+    }
     function relBlock(t){
       var d=window.REL_NOTE[t];
       if(!d) return '';
@@ -2659,29 +2711,48 @@
       function exLines(txt){
         var arr=txt.split('\n').map(function(line){
           var i=line.indexOf('：');
+          var hit=lineHit(i>0 && i<line.length-1 ? line.slice(0,i+1) : line);
+          if(hit) relAnyHit=true;
           if(i>0 && i<line.length-1){
             var head=line.slice(0,i+1), w=exWidth(head);
-            if(w<=6.5) return { head:head, body:line.slice(i+1), w:w };
+            if(w<=6.5) return { head:head, body:line.slice(i+1), w:w, hit:hit };
           }
-          return { line:line };
+          return { line:line, hit:hit };
         });
         var maxW=0;
         arr.forEach(function(o){ if(o.head && o.w>maxW){ maxW=o.w; } });
         if(maxW>0){ maxW=maxW+0.5; }
         return arr.map(function(o){
-          if(!o.head){ return '<span class="ex-line">'+o.line+'</span>'; }
-          return '<span class="ex-line cap" style="grid-template-columns:'+maxW.toFixed(2)+'em 1fr">'+
+          var cls='ex-line'+(o.hit?' ex-hit':'');
+          if(!o.head){ return '<span class="'+cls+'">'+o.line+'</span>'; }
+          return '<span class="'+cls+' cap" style="grid-template-columns:'+maxW.toFixed(2)+'em 1fr">'+
             '<span class="ex-t">'+o.head+'</span><span class="ex-c">'+o.body+'</span></span>';
         }).join('');
       }
+      // 單行關係／斷例：以「；」「、」切句，只標含本課地支的那一句
+      function markInline(s){
+        if(!lineHit(s)) return s;
+        return s.split(/([；、])/).map(function(part){
+          if(part==='；'||part==='、') return part;
+          if(!lineHit(part)) return part;
+          relAnyHit=true;
+          return '<span class="ex-hit-in">'+part+'</span>';
+        }).join('');
+      }
       var body=seg.map(function(p){
-        var content = p[1].indexOf('\n')>=0 ? exLines(p[1]) : p[1];
+        var content;
+        if(p[1].indexOf('\n')>=0){ content=exLines(p[1]); }
+        else if(p[0]==='〔關係〕'||p[0]==='〔斷例〕'){ content=markInline(p[1]); }
+        else { content=p[1]; }
         return '<div class="rel-seg"><b>'+p[0]+'</b><span>'+content+'</span></div>';
       }).join('');
       return '<div class="ssref-r rel-detail"><b>'+t+'</b><span>'+body+'</span></div>';
     }
     var relHitKeys=Object.keys(r.relKinds||{});
-    var relHitHTML=relHitKeys.length? relHitKeys.map(relBlock).join('') : '<div class="ssref-r"><span>本課未命中特定類別。</span></div>';
+    var relBlocksHTML=relHitKeys.map(relBlock).join('');
+    var relLegend = relAnyHit
+      ? '<div class="rel-legend">青綠底色＝與本課實際生克／地支組合相符（'+keZhiChars.join('・')+'）</div>' : '';
+    var relHitHTML=relHitKeys.length? relLegend+relBlocksHTML : '<div class="ssref-r"><span>本課未命中特定類別。</span></div>';
     // 只顯示本課課中出現的關係類別象意；預設收合，點下拉再展開
     var relRefHTML=relHitKeys.length
       ? '<details class="ssref"><summary>本課命中 '+relHitKeys.length+' 類象意，點擊下拉展開</summary><div class="ssref-b">'+relHitHTML+'</div></details>'
