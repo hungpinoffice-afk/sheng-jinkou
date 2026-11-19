@@ -852,7 +852,21 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
   .kv .v{white-space:nowrap;font-size:13px}
 }
 
-
+/* ============ 宮位關係標籤分色 ============
+   四位各一色（人元紫／貴神藍／將神綠／地分赭）＋生克比色票，六組關係一眼可分 */
+.gong-lb{display:inline-flex;flex-wrap:nowrap;align-items:baseline;white-space:nowrap}
+.gong-lb .gl-pos{font-weight:700;letter-spacing:.02em}
+.gong-lb .p-ren{color:#7b3fa0}
+.gong-lb .p-shen{color:#2264a8}
+.gong-lb .p-jiang{color:#16714f}
+.gong-lb .p-fang{color:#95601a}
+.gong-lb .gl-rel{font-size:.88em;line-height:1.3;padding:0 .36em;margin:0 .18em;border-radius:3px;
+  color:#fffdf6;font-weight:700;position:relative;top:-.06em;letter-spacing:0}
+.gong-lb .r-sheng{background:#2f7d5e}
+.gong-lb .r-ke{background:#b03528}
+.gong-lb .r-bi{background:#8d8373}
+.gong-lb .gl-wx{color:#9a8f7c;font-weight:400;margin-left:.1em;font-size:.92em}
+.ssref-b.combo.gong-combo{column-gap:14px}
 
 </style>
 </head>
@@ -2970,13 +2984,25 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       : '';
 
     // 宮位關係：本課四位生克對應斷語
+    // 標籤分色：四位各一色（人元紫／貴神藍／將神綠／地分赭），生克比另用色票，利於一眼分辨
+    var GONG_POS_CLS = { '人元': 'p-ren', '貴神': 'p-shen', '將神': 'p-jiang', '地分': 'p-fang' };
+    var GONG_REL_CLS = { '生': 'r-sheng', '克': 'r-ke', '比': 'r-bi' };
+    function gongLabel(g) {
+      var m = /^(人元|貴神|將神|地分)(比|生|克)(人元|貴神|將神|地分)$/.exec(g.key);
+      if (!m) return '<b class="gong-lb">' + g.key + '（' + g.wx + '）</b>';
+      return '<b class="gong-lb">' +
+        '<span class="gl-pos ' + GONG_POS_CLS[m[1]] + '">' + m[1] + '</span>' +
+        '<span class="gl-rel ' + GONG_REL_CLS[m[2]] + '">' + m[2] + '</span>' +
+        '<span class="gl-pos ' + GONG_POS_CLS[m[3]] + '">' + m[3] + '</span>' +
+        '<span class="gl-wx">（' + g.wx + '）</span></b>';
+    }
     var gongHitHTML=(r.gongHit||[]).length
       ? r.gongHit.map(function(g){
-          return '<div class="ssref-r"><b>'+g.key+'（'+g.wx+'）</b><span>'+g.text+'</span></div>';
+          return '<div class="ssref-r">'+gongLabel(g)+'<span>'+g.text+'</span></div>';
         }).join('')
       : '<div class="ssref-r"><span class="ssref-full">本課四位間無生克（皆比和）。</span></div>';
     // 只顯示本課四位實際命中的宮位生克，其餘定位與全部斷語不再展開
-    var gongRefHTML='<div class="ssref"><div class="ssref-b combo">'+gongHitHTML+'</div></div>';
+    var gongRefHTML='<div class="ssref"><div class="ssref-b combo gong-combo">'+gongHitHTML+'</div></div>';
 
     // 卡片下拉：整張說明卡預設收合，點標題列展開
     function foldCard(no,title,note,content){
@@ -3122,7 +3148,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       '<div class="ke">'+keHTML+'</div>'+
     '</div>'+
 
-    foldCard('宮','宮位關係（本課命中 '+(r.gongHit||[]).length+' 組）','',gongRefHTML)+
+    foldCard('宮','宮位關係','',gongRefHTML)+
 
     foldCard('合','課中關係（生 · 克 · 比 · 合 · 刑 · 沖 · 破 · 害 · 絕 · 會）','', '<div class="rel-list">'+rels+'</div>'+relRefHTML)+
 
