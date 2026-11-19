@@ -220,8 +220,10 @@
   .gd-body{min-width:0}
   .gd-item{margin:0;padding-left:1.626em;text-indent:-1.626em}
   .gd-item.gd-plain{padding-left:0;text-indent:0}
-  .gd-video{margin-top:2px}
-  .gd-video b{color:var(--gold);font-weight:600}
+  /* 地支象意．補充：標籤獨立左欄，內容自成欄，續行對齊內容起點 */
+  .gd-video{display:grid;grid-template-columns:max-content 1fr;align-items:baseline;margin-top:2px}
+  .gd-video>b{color:var(--gold);font-weight:600;white-space:nowrap}
+  .gd-video>span{min-width:0}
   /* 課中關係象意：各〔標籤〕左緣對齊；標籤後內容（含 a、b、列點）自成一行起點 */
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
@@ -2255,7 +2257,7 @@
     return '【'+z+'支象意】\n人體：'+t.body+'\n人物：'+t.person+'\n動物：'+t.animal+
       '\n環境：'+t.place+'\n器物：'+t.tool+'\n吉凶：'+t.ji+'\n疾病：'+t.disease+
       '\n基本特性：'+t.trait.replace(/\n/g,' ')+
-      (ZHI_VIDEO[z]?'\n\n【影片補充象意】\n'+ZHI_VIDEO[z]:'');
+      (ZHI_VIDEO[z]?'\n\n【補充象意】\n'+ZHI_VIDEO[z]:'');
   }
   function zhiChip(z){
     return '<span class="z" title="'+zhiTraitTip(z)+'">'+z+'</span>';
@@ -2418,7 +2420,7 @@
     if(!t) return name;
     var vd = GS_VIDEO[name] || JG_VIDEO[name];
     return '【'+name+'·簡記】\n'+t.jian+'\n\n〔主管〕'+t.guan+'\n\n〔所主歌〕'+t.song+'\n\n〔按〕'+t.full+
-      (vd?'\n\n【影片補充（將貴位置斷法）】\n'+vd:'');
+      (vd?'\n\n【補充（將貴位置斷法）】\n'+vd:'');
   }
   function nameChip(o){
     if(!o.name) return '';
@@ -2806,7 +2808,7 @@
           }).join('')+'</div></div>';
         return '<div class="ssref-r"><b>'+z+'</b><div class="zhi-body">人體：'+t.body+'<br>人物：'+t.person+'<br>動物：'+t.animal+
           '<br>環境：'+t.place+'<br>器物：'+t.tool+'<br>吉凶：'+t.ji+'<br>疾病：'+t.disease+traitHTML+
-          (ZHI_VIDEO[z]?'<div class="gd-video"><b>影片補充：</b>'+ZHI_VIDEO[z]+'</div>':'')+'</div></div>';
+          (ZHI_VIDEO[z]?'<div class="gd-video"><b>補充：</b><span>'+ZHI_VIDEO[z]+'</span></div>':'')+'</div></div>';
       }).join(''):'<div class="ssref-r"><span>本課四位未見地支。</span></div>')+
       '</div></div>';
 
@@ -2908,7 +2910,7 @@
     '</div>'+
 
     '<div class="card">'+
-      '<div class="c-head"><div class="c-no">組</div><div class="c-title">組合象意（影片補充）</div><div class="c-note">'+comboCount+' 組</div></div>'+
+      '<div class="c-head"><div class="c-no">組</div><div class="c-title">組合象意（補充）</div><div class="c-note">'+comboCount+' 組</div></div>'+
       comboRefHTML+
     '</div>'+
 
