@@ -251,6 +251,11 @@
   .gd-video{display:grid;grid-template-columns:max-content 1fr;align-items:baseline;margin-top:2px}
   .gd-video>b{color:var(--gold);font-weight:600;white-space:nowrap}
   .gd-video>span{min-width:0}
+  /* 地支象意．七類（人體／人物／動物／環境／器物／吉凶／疾病）：
+     標籤欄＋內容欄，內容續行一律對齊冒號後第一個字 */
+  .zhi-body .zrow{display:grid;grid-template-columns:max-content 1fr;align-items:baseline}
+  .zhi-body .zrow>span{min-width:0}
+  .zhi-body .zl-wrap{white-space:nowrap}
   /* 地支象意．分類標籤分色：七類各一色（人體赭／人物藍／動物橙／環境綠／器物紫／吉凶墨／疾病洋紅），
      吉凶行內的「吉」「凶」再各自轉綠／紅 */
   .zhi-body .zl{font-style:normal;font-weight:700;letter-spacing:.02em}
@@ -319,8 +324,10 @@
 
   .rel-list{display:block;margin-top:6px}
   .rel-list .chip{border-color:rgba(217,178,106,.3);color:#dcc9a0}
-  .rel-cat{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
-  .rel-cat>b{color:var(--gold);font-size:12px;letter-spacing:.05em;min-width:22px}
+  .rel-cat{display:grid;grid-template-columns:max-content 1fr;column-gap:6px;align-items:baseline;margin-top:6px}
+  .rel-cat>b{color:var(--gold);font-size:12px;letter-spacing:.05em;white-space:nowrap}
+  /* 籌碼自成欄：換行後第二排仍對齊第一排籌碼左緣（不再退回容器左邊） */
+  .rel-chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
 
   .lbl-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:7px 0;
     border-bottom:1px dashed rgba(58,68,80,.45);color:var(--muted)}
@@ -697,7 +704,7 @@
 <meta property="og:site_name" content="SHENG　金口訣">
 <meta property="og:title" content="SHENG　金口訣">
 <meta property="og:description" content="金口訣七步起課，手機可直接使用：四柱、月將、貴神、將神、人元、用爻，含旬空、四大空亡、內外旺衰、30 種神煞與 24 節氣。">
-<meta property="og:image" content="https://hungpinoffice-afk.github.io/sheng-jinkou/icon-512.png?v=58">
+<meta property="og:image" content="https://hungpinoffice-afk.github.io/sheng-jinkou/icon-512.png?v=59">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3080,7 +3087,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
                   '刑':'xing','沖':'chong','破':'po','害':'hai','絕':'jue','會':'hui'};
     var rels=relCats.map(function(c){
       var items=(r.relGroups&&r.relGroups[c])||[];
-      return '<div class="rel-cat c-'+REL_SLUG[c]+'"><b>'+c+'：</b>'+(items.length?items.map(relChip).join(''):'<span style="color:var(--dim);font-size:12.5px">無</span>')+'</div>';
+      return '<div class="rel-cat c-'+REL_SLUG[c]+'"><b>'+c+'：</b><div class="rel-chips">'+(items.length?items.map(relChip).join(''):'<span style="color:var(--dim);font-size:12.5px">無</span>')+'</div></div>';
     }).join('');
 
     // 課中關係：依本課命中類別帶出規則書對應象意
@@ -3284,14 +3291,15 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
         var jiHTML=String(t.ji)
           .replace(/吉(?=[：為主利])/g,'<em class="jl-ji">吉</em>')
           .replace(/凶(?=[：為主])/g,'<em class="jl-xiong">凶</em>');
+        function zrow(cls,lb,val){return '<div class="zrow"><span class="zl-wrap"><i class="zl '+cls+'">'+lb+'</i>：</span><span>'+val+'</span></div>';}
         return '<div class="ssref-r"><b>'+z+'</b><div class="zhi-body">'+
-          '<i class="zl l-body">人體</i>：'+t.body+
-          '<br><i class="zl l-person">人物</i>：'+t.person+
-          '<br><i class="zl l-animal">動物</i>：'+t.animal+
-          '<br><i class="zl l-place">環境</i>：'+t.place+
-          '<br><i class="zl l-tool">器物</i>：'+t.tool+
-          '<br><i class="zl l-ji">吉凶</i>：'+jiHTML+
-          '<br><i class="zl l-disease">疾病</i>：'+t.disease+traitHTML+
+          zrow('l-body','人體',t.body)+
+          zrow('l-person','人物',t.person)+
+          zrow('l-animal','動物',t.animal)+
+          zrow('l-place','環境',t.place)+
+          zrow('l-tool','器物',t.tool)+
+          zrow('l-ji','吉凶',jiHTML)+
+          zrow('l-disease','疾病',t.disease)+traitHTML+
           (ZHI_VIDEO[z]?'<div class="gd-video"><b>補充：</b><span>'+ZHI_VIDEO[z]+'</span></div>':'')+'</div></div>';
       }).join(''):'<div class="ssref-r"><span>本課四位未見地支。</span></div>')+
       '</div></div>';
