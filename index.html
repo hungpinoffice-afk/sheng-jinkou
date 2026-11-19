@@ -969,13 +969,44 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 .ck-ss{color:#7b3fa0;font-weight:700}
 .ck-ot{color:#9a8f7c;font-weight:400}
 
+/* ============ 十二月將／十二貴神：首句重點帶＋四類標籤分色 ============
+   首句（「功曹為寅，代表十月將…」）加淡底與左側朱線，將名朱紅、干／支／五行各一色；
+   [主管]藍／[所主歌]紫／[簡記]綠／[補充]洋紅，四段一眼可分。 */
+.ssref-b.godnote .godnote-full{color:#2b241b;font-size:12.5px;line-height:1.8;
+  font-family:"Noto Serif TC",serif;padding:3px 9px;margin-bottom:3px;
+  border-left:3px solid rgba(156,43,31,.42);background:rgba(156,43,31,.045);border-radius:0 4px 4px 0}
+.ssref-b.godnote .godnote-full .gn{color:#9c2b1f;font-weight:700;letter-spacing:.04em}
+.ssref-b.godnote .godnote-r>b{font-weight:700}
+.ssref-b.godnote .godnote-r>b.k-guan{color:#2a5aa8}
+.ssref-b.godnote .godnote-r>b.k-song{color:#7b3fa0}
+.ssref-b.godnote .godnote-r>b.k-jian{color:#16714f}
+.ssref-b.godnote .godnote-r>b.k-bu{color:#a3246e}
+
+/* ============ 五行性格特徵行業：五行各一色＋性格／特徵／行業分色 ============ */
+.wx-row{padding-left:10px;align-items:start}
+.wx-row.wx-mu{box-shadow:inset 3px 0 0 #1c7a55}
+.wx-row.wx-huo{box-shadow:inset 3px 0 0 #b03528}
+.wx-row.wx-tu{box-shadow:inset 3px 0 0 #95601a}
+.wx-row.wx-jin{box-shadow:inset 3px 0 0 #6b7280}
+.wx-row.wx-shui{box-shadow:inset 3px 0 0 #2a5aa8}
+.wx-row>.wx-tag{font-family:"Noto Serif TC",serif;font-size:16px;line-height:1.35;font-weight:700}
+.wx-mu>.wx-tag{color:#1c7a55}
+.wx-huo>.wx-tag{color:#b03528}
+.wx-tu>.wx-tag{color:#95601a}
+.wx-jin>.wx-tag{color:#6b7280}
+.wx-shui>.wx-tag{color:#2a5aa8}
+.wx-k{font-weight:700}
+.wx-line>.k-xing{color:#0e7490}
+.wx-line>.k-te{color:#7b3fa0}
+.wx-line>.k-ye{color:#a3246e}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V49</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V50</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3219,10 +3250,11 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     var wxRefHTML='<div class="ssref"><div class="ssref-b">'+
       (wxInKe.length?wxInKe.map(function(w){
         var t = WX_TRAIT[w];
-        return '<div class="ssref-r"><b>'+w+'</b><span class="wx-body">'+
-          '<span class="wx-line">性格：'+t.xing+'</span>'+
-          '<span class="wx-line">特徵：'+t.te+'</span>'+
-          '<span class="wx-line">行業：'+t.ye+'</span>'+
+        var slug = {'木':'mu','火':'huo','土':'tu','金':'jin','水':'shui'}[w] || 'mu';
+        return '<div class="ssref-r wx-row wx-'+slug+'"><b class="wx-tag">'+w+'</b><span class="wx-body">'+
+          '<span class="wx-line"><b class="wx-k k-xing">性格：</b>'+t.xing+'</span>'+
+          '<span class="wx-line"><b class="wx-k k-te">特徵：</b>'+t.te+'</span>'+
+          '<span class="wx-line"><b class="wx-k k-ye">行業：</b>'+t.ye+'</span>'+
           '</span></div>';
       }).join(''):'<div class="ssref-r"><span>本課四位未見五行。</span></div>')+
       '</div></div>';
@@ -3258,6 +3290,33 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     // GS／JIANG_NAME 定義於 JK 模組內，renderPan 所在作用域不可見；
     // 改以簡記表的鍵取得十二貴神與十二月將名稱（順序與模組定義一致）。
     var gsUse = p.shen.name, jgUse = p.jiang.name;
+    /* 首句（「功曹為寅，代表十月將…」）原本與正文同色，看不出重點：
+       將名／貴神名轉朱紅粗體，干、支、五行各給一色（沿用組合象意的 ck-* 色票）。 */
+    function gzTokenize(s){
+      var GAN='甲乙丙丁戊己庚辛壬癸', ZHI='子丑寅卯辰巳午未申酉戌亥', WX='木火土金水';
+      var SKIP=['天乙','太乙'];   // 神煞名中的「乙」不是天干，不著色
+      var out='';
+      for(var i=0;i<s.length;i++){
+        var skipped='';
+        for(var k=0;k<SKIP.length;k++){
+          if(s.substr(i,SKIP[k].length)===SKIP[k]){ skipped=SKIP[k]; break; }
+        }
+        if(skipped){ out+=skipped; i+=skipped.length-1; continue; }
+        var c=s.charAt(i);
+        if(GAN.indexOf(c)>=0) out+='<i class="ck-gan">'+c+'</i>';
+        else if(ZHI.indexOf(c)>=0) out+='<i class="ck-zhi">'+c+'</i>';
+        else if(WX.indexOf(c)>=0) out+='<i class="ck-wx">'+c+'</i>';
+        else out+=c;
+      }
+      return out;
+    }
+    function godFullHTML(text, name){
+      var t=String(text||'');
+      if(name && t.indexOf(name)===0){
+        return '<b class="gn">'+name+'</b>'+gzTokenize(t.slice(name.length));
+      }
+      return gzTokenize(t);
+    }
     // 只列本課貴神／月將本身，其餘十一項不再展開
     function godRefHTML(dict, use){
       var list = use && dict[use] ? [use] : [];
@@ -3265,11 +3324,11 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
         (list.length?list.map(function(n){
           var t=dict[n];
           var vd = GS_VIDEO[n] || JG_VIDEO[n];
-          return '<div class="godnote-full">'+t.full+'</div>'+
-            '<div class="godnote-r"><b>[主管]</b><span>'+t.guan.replace(/^主管[：:]\s*/,'')+'</span></div>'+
-            '<div class="godnote-r"><b>[所主歌]</b><span>'+t.song.replace(/\n/g,' ')+'</span></div>'+
-            '<div class="godnote-r"><b>[簡記]</b><span>'+t.jian+'</span></div>'+
-            (vd?'<div class="godnote-r"><b>[補充]</b><span>'+vd+'</span></div>':'');
+          return '<div class="godnote-full">'+godFullHTML(t.full,n)+'</div>'+
+            '<div class="godnote-r"><b class="k-guan">[主管]</b><span>'+t.guan.replace(/^主管[：:]\s*/,'')+'</span></div>'+
+            '<div class="godnote-r"><b class="k-song">[所主歌]</b><span>'+t.song.replace(/\n/g,' ')+'</span></div>'+
+            '<div class="godnote-r"><b class="k-jian">[簡記]</b><span>'+t.jian+'</span></div>'+
+            (vd?'<div class="godnote-r"><b class="k-bu">[補充]</b><span>'+vd+'</span></div>':'');
         }).join(''):'<div class="ssref-r"><span class="ssref-full">本課未見。</span></div>')+
         '</div></div>';
     }
@@ -3387,9 +3446,9 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 
     foldCard('組','組合象意',comboCount+' 組',comboRefHTML)+
 
-    foldCard('將','十二月將簡記（本課：'+(jgUse||'無')+'）','',jgRefHTML)+
+    foldCard('將','十二月將（本課：'+(jgUse||'無')+'）','',jgRefHTML)+
 
-    foldCard('貴','十二貴神簡記（本課：'+(gsUse||'無')+'）','',gsRefHTML)+
+    foldCard('貴','十二貴神（本課：'+(gsUse||'無')+'）','',gsRefHTML)+
 
     foldCard('煞','神煞',(ss.length?ss.length+' 項入課':'無'),ssHTML)+
 
