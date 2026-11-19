@@ -2596,10 +2596,11 @@
       return '<div class="lbl-row"><span>'+c.a+' → '+c.b+'</span><b class="'+cls+'">'+c.r.k+'　<span style="color:var(--dim);font-weight:400">'+c.r.s+'</span></b></div>';
     }).join('');
 
-    // 依圖片改為分類顯示：生、克、比、合、刑、沖、破、害、絕、會
-    var rels=['生','克','比','合','刑','沖','破','害','絕','會'].map(function(c){
+    // 依圖片改為分類顯示：十類固定順序，未命中者顯示「無」
+    var relCats=['生','克','比','合','刑','沖','破','害','絕','會'];
+    var rels=relCats.map(function(c){
       var items=(r.relGroups&&r.relGroups[c])||[];
-      return '<div class="rel-cat"><b>'+c+'：</b>'+items.map(chip).join('')+'</div>';
+      return '<div class="rel-cat"><b>'+c+'：</b>'+(items.length?items.map(chip).join(''):'<span style="color:var(--dim);font-size:12.5px">無</span>')+'</div>';
     }).join('');
 
     // 課中關係：依本課命中類別帶出規則書對應象意
