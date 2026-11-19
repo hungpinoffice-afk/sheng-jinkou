@@ -1068,6 +1068,16 @@
     '火金': '血光手術。'
   };
 
+  // 通關法：兩五行挨在一起引起災禍時，中間以第三者五行通關，形成連續相生。
+  // 鍵名同上，為「克方 + 被克方」。
+  window.NEAR_TONG_NOTE = {
+    '木土': { bridge: '火', chain: '木生火，火生土' },
+    '土水': { bridge: '金', chain: '土生金，金生水' },
+    '水火': { bridge: '木', chain: '水生木，木生火' },
+    '火金': { bridge: '土', chain: '火生土，土生金' },
+    '金木': { bridge: '水', chain: '金生水，水生木' }
+  };
+
   function pairIn(list, i, j) {
     for (var k = 0; k < list.length; k++) {
       var a = list[k][0], b = list[k][1];
@@ -1332,7 +1342,13 @@
       else if (KE[b] === a) dir = b + '克' + a;
       else return null;
       var key = dir.replace('克', '');
-      return { from: q[0], to: q[1], wx: a + ' + ' + b, dir: dir, key: key, text: window.NEAR_KE_NOTE[key] || '' };
+      var tong = window.NEAR_TONG_NOTE[key] || null;
+      return {
+        from: q[0], to: q[1], wx: a + ' + ' + b, dir: dir, key: key,
+        text: window.NEAR_KE_NOTE[key] || '',
+        tong: tong,
+        tongText: tong ? '中間用【' + tong.bridge + '】通關，形成' + tong.chain + '。' : ''
+      };
     }).filter(Boolean);
 
     // ---- 主客（以將為我、貴神為客／事） ----
@@ -2604,17 +2620,20 @@
       '</div></details>';
 
     // 相鄰五行：僅判斷相鄰三位（人元—貴神—將神—地分）的相克組合
-    var nearRefHTML='<details class="ssref"><summary>相鄰相克五行共 5 組；點擊展開查法</summary><div class="ssref-b">'+
+    var nearRefHTML='<details class="ssref"><summary>相鄰相克五行與通關法共 5 組；點擊展開查法</summary><div class="ssref-b">'+
       Object.keys(window.NEAR_KE_NOTE).map(function(k){
-        return '<div class="ssref-r"><b>'+k.charAt(0)+' + '+k.charAt(1)+'</b><span>'+window.NEAR_KE_NOTE[k]+'</span></div>';
+        var t = window.NEAR_TONG_NOTE[k];
+        return '<div class="ssref-r"><b>'+k.charAt(0)+' + '+k.charAt(1)+'</b><span>'+window.NEAR_KE_NOTE[k]+
+          (t?'<br><b style="color:var(--gold)">通關法：</b>中間用【'+t.bridge+'】通關，形成'+t.chain+'。':'')+'</span></div>';
       }).join('')+'</div></details>';
     var nearHitHTML=(r.nearHit||[]).length
       ? r.nearHit.map(function(n){
-          return '<div class="ssref-r"><b>'+n.from+' → '+n.to+'（'+n.wx+'）</b><span>'+n.dir+'：'+n.text+'</span></div>';
+          return '<div class="ssref-r"><b>'+n.from+' → '+n.to+'（'+n.wx+'）</b><span>'+n.dir+'：'+n.text+
+            (n.tongText?'<br><b style="color:var(--gold)">通關法：</b>'+n.tongText:'')+'</span></div>';
         }).join('')
       : '<div class="ssref-r"><span>本課相鄰三位未見相克組合。</span></div>';
     var nearCardHTML='<div class="card">'+
-      '<div class="c-head"><div class="c-no">鄰</div><div class="c-title">相鄰五行（課內四位）</div><div class="c-note">命中 '+(r.nearHit||[]).length+' 組</div></div>'+
+      '<div class="c-head"><div class="c-no">鄰</div><div class="c-title">相鄰五行（課內四位）· 通關法</div><div class="c-note">命中 '+(r.nearHit||[]).length+' 組</div></div>'+
       nearHitHTML+nearRefHTML+
     '</div>';
 
