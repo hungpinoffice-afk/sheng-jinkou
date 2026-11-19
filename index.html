@@ -1006,7 +1006,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V50</span></div>
+    <div class="h-sub2">SHENG<span class="gap"></span>2026/11<span class="ver">V51</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3467,24 +3467,46 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     $('#btn-back').addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
   }
 
+  /* 複製課盤：輸出「四柱」與「課式·干神將方」兩張卡的文字版
+     以半形寬度為單位補全形空白對齊（中文字算 2、英數算 1），
+     貼到通訊軟體仍能保持欄位對齊。 */
   function textPan(r){
-    var p=r.pos;
-    var lines=[];
-    lines.push('【金口訣課盤】'+(r.mode==='gz'?'干支 '+r.input.szText:r.input.dateText));
+    var p=r.pos, sz=r.sizhu;
+    var IDEO=String.fromCharCode(0x3000);
+    function dwv(s){ var n=0; for(var i=0;i<s.length;i++){ var c=s.charCodeAt(i); n+=((c<127)||(c>=0xFF61&&c<=0xFF9F))?1:2; } return n; }
+    function pad(s,w){ var d=w-dwv(s); if(d<=0) return s; var o=s, f=Math.floor(d/2), i;
+      for(i=0;i<f;i++) o+=IDEO; if(d%2) o+=' '; return o; }
+    var L=[];
+    L.push('【金口訣】'+(r.mode==='gz'?'干支 '+r.input.szText:r.input.dateText));
     var ji=jqInfo(r);
-    lines.push('節氣：'+ji.jie.name+' '+JK.fmtMD(ji.jie.date)+' ～ '+ji.nextJie.name+' '+JK.fmtMD(ji.nextJie.date)+(ji.gz?'（依年柱推得 '+ji.year+' 年）':''));
-    lines.push('四柱：'+r.sizhu.year.g+r.sizhu.year.z+'　'+r.sizhu.month.g+r.sizhu.month.z+'　'+r.sizhu.day.g+r.sizhu.day.z+'　'+r.sizhu.hour.g+r.sizhu.hour.z);
-    lines.push('月建：'+r.monthJian+'　月將：'+r.jiang.zhi+'（'+r.jiang.name+'）　'+(r.gui.day?'晝貴':'夜貴')+'：'+r.gui.zhi+(r.gui.forward?'（順行）':'（逆行）'));
-    lines.push('── 課式 ──');
+    L.push('節氣　'+ji.jie.name+' '+JK.fmtMD(ji.jie.date)+' ～ '+ji.nextJie.name+' '+JK.fmtMD(ji.nextJie.date)+(ji.gz?'（依年柱推得 '+ji.year+' 年）':''));
+    L.push('');
+    L.push('課　四柱');
+    L.push(pad('年柱',8)+pad('月柱',8)+pad('日柱',8)+'時柱');
+    L.push(pad(sz.year.g+sz.year.z,8)+pad(sz.month.g+sz.month.z,8)+pad(sz.day.g+sz.day.z,8)+sz.hour.g+sz.hour.z);
+    L.push(pad('月建　'+r.monthJian+'（'+r.monthWx+'）',22)+'月將　'+r.jiang.zhi+'（'+r.jiang.name+'）');
+    L.push(pad('日旬空　'+r.kong.join('、'),22)+'四大空亡　'+(r.kongInfo.fvWx?(r.kongInfo.fvWx+'（'+(r.kongInfo.fvHit?'犯':'無')+'）'):'無'));
+    L.push('');
+    L.push('式　課式 · 干神將方');
     [p.ren,p.shen,p.jiang,p.fang].forEach(function(o){
-      lines.push(o.label+'：'+(o.gan||'')+o.zhi+(o.name&&o.label!=='地分'?'（'+o.name+'）':'')+
-        '（'+o.wx+'·'+o.ws+'·'+o.yy+(o.kong?'·空':'')+'）'+(o.used?'　◀ 用爻':''));
+      var mark = o.used ? '（用）'
+        : (o.label==='地分' ? (r.fangSrc==='hour'?'（時辰）':'（自選）') : '');
+      var line = pad(mark,8) + pad(o.label,10) +
+        pad((o.gan||'')+(o.zhi||''),10) +
+        pad((o.name&&o.label!=='地分')?o.name:'',8);
+      line += (o.yy==='陽'?'＋':'－') + o.wx + '　' + o.innerWs + '　外' + o.outerWs;
+      var ssl=(o.shenShaList||[]).join('・');
+      if(ssl) line += '　' + ssl;
+      var kk=[];
+      if(o.kongXun) kk.push('日旬空');
+      if(o.kongDa)  kk.push('四大空亡');
+      if(kk.length) line += '　[' + kk.join('・') + ']';
+      L.push(line);
     });
-    lines.push('用爻：'+r.used.label+'（'+r.used.reason+'）');
-    lines.push('主客：'+p.jiang.zhi+'（我） 與 '+p.shen.zhi+'（事）→ '+r.zhuke.rel.s+'　'+r.zhuke.text);
-    lines.push('空亡：'+r.kong.join('、'));
-    if(r.relations.length) lines.push('關係：'+r.relations.join('；'));
-    return lines.join('\n');
+    L.push('');
+    var ur=(r.used.reason||'').replace(/（[^）]*）\s*$/,'');
+    L.push('用爻　'+r.used.label+(ur?'（'+ur+'）':''));
+    return L.join('\n');
   }
 
   function copyText(t){
