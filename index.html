@@ -213,6 +213,15 @@
   .ssref-b.godnote .godnote-full{grid-column:1/-1}
   .ssref-b.godnote .godnote-r{display:contents}
   .ssref-b.godnote .godnote-r>b{color:#d9c59a;font-weight:600;white-space:nowrap;font-family:"Noto Serif TC",serif}
+  /* 地支象意．基本特性：標籤獨立一欄，(1)(2)(3) 各段懸掛縮排，續行對齊編號後文字 */
+  .ssref-r>.zhi-body{min-width:0}
+  .gd-trait{display:grid;grid-template-columns:5.4em 1fr;align-items:start;margin-top:1px}
+  .gd-trait>.gd-label{white-space:nowrap}
+  .gd-body{min-width:0}
+  .gd-item{margin:0;padding-left:2.05em;text-indent:-2.05em}
+  .gd-item.gd-plain{padding-left:0;text-indent:0}
+  .gd-video{margin-top:2px}
+  .gd-video b{color:var(--gold);font-weight:600}
   /* 課中關係象意：各〔標籤〕左緣對齊；標籤後內容（含 a、b、列點）自成一行起點 */
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
@@ -2718,10 +2727,15 @@
     var zhiRefHTML = '<div class="ssref"><div class="ssref-b">'+
       (zhiInKe.length?zhiInKe.map(function(z){
         var t=ZHI_IMAGE[z];
-        return '<div class="ssref-r"><b>'+z+'</b><span>人體：'+t.body+'<br>人物：'+t.person+'<br>動物：'+t.animal+
-          '<br>環境：'+t.place+'<br>器物：'+t.tool+'<br>吉凶：'+t.ji+'<br>疾病：'+t.disease+
-          '<br>基本特性：'+t.trait.replace(/\n/g,'<br>')+
-          (ZHI_VIDEO[z]?'<br><b style="color:var(--gold)">影片補充：</b>'+ZHI_VIDEO[z]:'')+'</span></div>';
+        var traits=t.trait.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+        var traitHTML='<div class="gd-trait"><span class="gd-label">基本特性：</span><div class="gd-body">'+
+          traits.map(function(x){
+            var num=/^\(\d+\)/.test(x);
+            return '<p class="gd-item'+(num?'':' gd-plain')+'">'+x+'</p>';
+          }).join('')+'</div></div>';
+        return '<div class="ssref-r"><b>'+z+'</b><div class="zhi-body">人體：'+t.body+'<br>人物：'+t.person+'<br>動物：'+t.animal+
+          '<br>環境：'+t.place+'<br>器物：'+t.tool+'<br>吉凶：'+t.ji+'<br>疾病：'+t.disease+traitHTML+
+          (ZHI_VIDEO[z]?'<div class="gd-video"><b>影片補充：</b>'+ZHI_VIDEO[z]+'</div>':'')+'</div></div>';
       }).join(''):'<div class="ssref-r"><span>本課四位未見地支。</span></div>')+
       '</div></div>';
 
