@@ -1567,9 +1567,9 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     var inner = innerWangWx(four);
     four.forEach(function (p) {
       p.kongXun = !!p.zhi && kong.indexOf(p.zhi) >= 0;
-      /* 四大空亡只看「該位實際顯示的五行」：人元取干，貴神／將神／地分取支。
-         貴神、將神的遁干僅供神煞輔助，不算四位之一，故不參與四大空亡判定。 */
-      p.kongDa = !!fvWx && p.wx === fvWx;
+      /* 四大空亡論「整個課式的五行之氣」：天干、地支皆計。
+         故人元取干；貴神、將神同時比對「遁干」與「地支」；地分取支。 */
+      p.kongDa = !!fvWx && ((!!p.zhi && wxOfZhi(p.zhi) === fvWx) || (!!p.gan && wxOfGan(p.gan) === fvWx));
       if (p.kongDa) fvHit = true;
       p.kongText = p.kongXun && p.kongDa ? '日旬空·四大空亡' : (p.kongXun ? '日旬空' : (p.kongDa ? '四大空亡' : '–'));
       p.innerWs = inner.wx ? wangShuai(p.wx, inner.wx) : p.ws;
@@ -2863,7 +2863,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
   function kongChip(o){
     var s='';
     if(o.kongXun) s+='<span class="chip kongc on" title="日旬空亡：本旬所空之支">日旬空</span>';
-    if(o.kongDa)  s+='<span class="chip kongc on da" title="四大空亡：本旬納音缺此五行，課內四位見同五行者犯之">四大空亡</span>';
+    if(o.kongDa)  s+='<span class="chip kongc on da" title="四大空亡：本旬納音缺此五行；課內四位的天干與地支（含貴神、將神所遁之干）見同五行者犯之">四大空亡</span>';
     return '<span class="cg">'+(s || '<span class="chip kongc off">–</span>')+'</span>';
   }
   function wsChip(v,k,info){
@@ -3211,7 +3211,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
         '<div class="kv"><div class="k">月建</div><div class="v">'+r.monthJian+'（'+r.monthWx+'）</div></div>'+
         '<div class="kv"><div class="k">月將</div><div class="v">'+r.jiang.zhi+'（'+r.jiang.name+'）</div></div>'+
         '<div class="kv"><div class="k">日旬空</div><div class="v">'+r.kong.join('、')+'</div></div>'+
-        '<div class="kv" title="四大空亡：子午旬無水、寅申旬無金，課內四位（人元干、貴神／將神／地分支）見此五行者為犯；甲辰／甲戌二旬五行俱全，無四大空亡"><div class="k">四大空亡</div><div class="v">'+(r.kongInfo.fvWx ? r.kongInfo.fvWx+'（'+(r.kongInfo.fvHit?'犯':'無')+'）' : '無')+'</div></div>'+
+        '<div class="kv" title="四大空亡：子午旬無水、寅申旬無金；論整個課式的五行之氣，天干（含貴神、將神遁干）與地支皆計，見此五行者為犯；甲辰／甲戌二旬五行俱全，無四大空亡"><div class="k">四大空亡</div><div class="v">'+(r.kongInfo.fvWx ? r.kongInfo.fvWx+'（'+(r.kongInfo.fvHit?'犯':'無')+'）' : '無')+'</div></div>'+
       '</div>'+
     '</div>'+
 
