@@ -2729,16 +2729,25 @@
     var gsRefHTML = godRefHTML(GS_NOTE, gsUse);
     var jgRefHTML = godRefHTML(JG_NOTE, jgUse);
 
-    // 組合象意：只保留關鍵字中含本課課式元素（干／支／五行／貴神／將神名稱）的條目
+    // 組合象意：只保留「組成的干／支全部出現在本課四位」的條目
+    // 四位＝人元（干）、貴神（干＋支）、將神（干＋支）、地分（支）
+    var GAN_SET='甲乙丙丁戊己庚辛壬癸', ZHI_SET='子丑寅卯辰巳午未申酉戌亥';
     var keTokens=[];
     order.forEach(function(o){
-      [o.gan,o.zhi,o.wx,o.name].forEach(function(v){
+      [o.gan,o.zhi].forEach(function(v){
         if(v && keTokens.indexOf(v)<0) keTokens.push(v);
       });
     });
+    function comboChars(k){
+      return String(k).split('').filter(function(c){
+        return GAN_SET.indexOf(c)>=0 || ZHI_SET.indexOf(c)>=0;
+      });
+    }
     var comboGroups=COMBO_NOTE.map(function(g){
       return { g:g.g, items:g.items.filter(function(it){
-        return keTokens.some(function(t){return it[0].indexOf(t)>=0;});
+        var cs=comboChars(it[0]);
+        if(!cs.length) return false;
+        return cs.every(function(c){ return keTokens.indexOf(c)>=0; });
       }) };
     }).filter(function(g){return g.items.length>0;});
     var comboCount = comboGroups.reduce(function(a,g){return a+g.items.length;},0);
