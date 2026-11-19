@@ -61,6 +61,25 @@
   .c-title{font-size:15px;letter-spacing:.1em;font-family:"Noto Serif TC",serif;color:#eee4cf}
   .c-note{font-size:11.5px;color:var(--dim);margin-left:auto;letter-spacing:.02em}
 
+  /* ---------- 卡片下拉收合：標題列即為控制列，預設收合 ---------- */
+  .card.fold{padding:0;overflow:hidden}
+  .card.fold>.cf{display:block}
+  .card.fold>.cf>summary.c-head{margin:0;padding:16px 18px;cursor:pointer;list-style:none;
+    -webkit-appearance:none;user-select:none;border-radius:inherit;transition:background .18s ease}
+  .card.fold>.cf>summary.c-head::-webkit-details-marker{display:none}
+  .card.fold>.cf>summary.c-head::marker{content:""}
+  .card.fold>.cf>summary.c-head:hover{background:rgba(255,255,255,.025)}
+  .card.fold>.cf[open]>summary.c-head{box-shadow:inset 0 -1px 0 rgba(58,68,80,.45)}
+  .cf-tail{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+  .cf-tail>.c-note{margin-left:0;min-width:4.8em;text-align:right}
+  .cf-hint{font-style:normal;font-size:11px;letter-spacing:.06em;color:#8a8172;white-space:nowrap}
+  .cf-hint::before{content:attr(data-open)}
+  .cf[open] .cf-hint::before{content:attr(data-close)}
+  .cf-arrow{width:7px;height:7px;flex:none;border-right:1.6px solid #8a8172;border-bottom:1.6px solid #8a8172;
+    transform:rotate(45deg) translate(-1px,-1px);transition:transform .22s ease}
+  .cf[open] .cf-arrow{transform:rotate(225deg) translate(-1px,-1px)}
+  .cf-body{padding:8px 18px 18px}
+
   label.fld{display:block;font-size:12px;color:var(--muted);margin:0 0 6px;letter-spacing:.08em}
   input[type="datetime-local"],input[type="number"],input[type="text"],select{
     width:100%;padding:11px 12px;border-radius:12px;background:#0c1014;color:var(--text);
@@ -2777,6 +2796,24 @@
     // 只顯示本課四位實際命中的宮位生克，其餘定位與全部斷語不再展開
     var gongRefHTML='<div class="ssref"><div class="ssref-b combo">'+gongHitHTML+'</div></div>';
 
+    // 卡片下拉：整張說明卡預設收合，點標題列展開
+    function foldCard(no,title,note,content){
+      return '<div class="card fold">'+
+        '<details class="cf">'+
+          '<summary class="c-head">'+
+            '<span class="c-no">'+no+'</span>'+
+            '<span class="c-title">'+title+'</span>'+
+            '<span class="cf-tail">'+
+              (note?'<span class="c-note">'+note+'</span>':'')+
+              '<i class="cf-hint" data-open="展開" data-close="收合"></i>'+
+              '<span class="cf-arrow"></span>'+
+            '</span>'+
+          '</summary>'+
+          '<div class="cf-body">'+content+'</div>'+
+        '</details>'+
+      '</div>';
+    }
+
     // 相鄰五行：僅判斷相鄰三位（人元—貴神—將神—地分）的相克組合；只列本課命中
     var nearHitHTML=(r.nearHit||[]).length
       ? r.nearHit.map(function(n){
@@ -2784,10 +2821,7 @@
             (n.tongText?'　<b class="near-tong">[通關法]</b>'+n.tongText:'')+'</div>';
         }).join('')
       : '<div class="near-row near-empty">本課相鄰三位未見相克組合。</div>';
-    var nearCardHTML='<div class="card">'+
-      '<div class="c-head"><div class="c-no">鄰</div><div class="c-title">相鄰五行（課內四位）· 通關法</div><div class="c-note">命中 '+(r.nearHit||[]).length+' 組</div></div>'+
-      nearHitHTML+
-    '</div>';
+    var nearCardHTML=foldCard('鄰','相鄰五行（課內四位）· 通關法','命中 '+(r.nearHit||[]).length+' 組',nearHitHTML);
 
     // 神煞只列本課四位實際命中者；規則書全表不再展開
     var ss=(r.shenSha||[]).filter(function(s){return (s.at||[]).length>0;});
@@ -2906,45 +2940,21 @@
       '<div class="ke">'+keHTML+'</div>'+
     '</div>'+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">宮</div><div class="c-title">宮位關係（本課命中 '+(r.gongHit||[]).length+' 組）</div></div>'+
-      gongRefHTML+
-    '</div>'+
+    foldCard('宮','宮位關係（本課命中 '+(r.gongHit||[]).length+' 組）','',gongRefHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">合</div><div class="c-title">課中關係（生 · 克 · 比 · 合 · 刑 · 沖 · 破 · 害 · 絕 · 會）</div></div>'+
-      '<div class="rel-list">'+rels+'</div>'+relRefHTML+
-    '</div>'+
+    foldCard('合','課中關係（生 · 克 · 比 · 合 · 刑 · 沖 · 破 · 害 · 絕 · 會）','', '<div class="rel-list">'+rels+'</div>'+relRefHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">支</div><div class="c-title">地支象意（本課：'+(zhiInKe.length?zhiInKe.join('、'):'無')+'）</div></div>'+
-      zhiRefHTML+
-    '</div>'+
+    foldCard('支','地支象意（本課：'+(zhiInKe.length?zhiInKe.join('、'):'無')+'）','',zhiRefHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">組</div><div class="c-title">組合象意（補充）</div><div class="c-note">'+comboCount+' 組</div></div>'+
-      comboRefHTML+
-    '</div>'+
+    foldCard('組','組合象意（補充）',comboCount+' 組',comboRefHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">將</div><div class="c-title">十二月將簡記（本課：'+(jgUse||'無')+'）</div></div>'+
-      jgRefHTML+
-    '</div>'+
+    foldCard('將','十二月將簡記（本課：'+(jgUse||'無')+'）','',jgRefHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">貴</div><div class="c-title">十二貴神簡記（本課：'+(gsUse||'無')+'）</div></div>'+
-      gsRefHTML+
-    '</div>'+
+    foldCard('貴','十二貴神簡記（本課：'+(gsUse||'無')+'）','',gsRefHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">煞</div><div class="c-title">神煞</div><div class="c-note">'+(ss.length?ss.length+' 項入課':'無')+'</div></div>'+
-      ssHTML+
-    '</div>'+
+    foldCard('煞','神煞',(ss.length?ss.length+' 項入課':'無'),ssHTML)+
 
-    '<div class="card">'+
-      '<div class="c-head"><div class="c-no">行</div><div class="c-title">五行性格特徵行業</div></div>'+
-      wxRefHTML+
-    '</div>'+
+    foldCard('行','五行性格特徵行業','',wxRefHTML)+
 
     nearCardHTML+
 

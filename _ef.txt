@@ -1,0 +1,4 @@
+[44332:34912:1119/174307.649:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[44332:34912:1119/174307.649:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[44332:34912:1119/174307.773:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:233] Edge does not support fetching account capabilities
+[44332:34912:1119/174307.774:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:195] Should not execute: Tests depending on this function may fail
