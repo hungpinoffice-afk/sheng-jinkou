@@ -208,6 +208,11 @@
   .ssref-b.combo .ssref-r{display:contents}
   .ssref-b.combo .ssref-r>b{white-space:nowrap}
   .ssref-b.combo .ssref-full{grid-column:1/-1}
+  /* 將神／貴神簡記：仿原書段落式 [主管][所主歌][簡記][補充]，續行對齊內容欄 */
+  .ssref-b.godnote{grid-template-columns:max-content 1fr;column-gap:6px;font-size:11.5px;line-height:1.75;color:#7b8694}
+  .ssref-b.godnote .godnote-full{grid-column:1/-1}
+  .ssref-b.godnote .godnote-r{display:contents}
+  .ssref-b.godnote .godnote-r>b{color:#d9c59a;font-weight:600;white-space:nowrap;font-family:"Noto Serif TC",serif}
   /* 課中關係象意：各〔標籤〕左緣對齊；標籤後內容（含 a、b、列點）自成一行起點 */
   .rel-detail .rel-seg{display:grid;grid-template-columns:4.2em 1fr;min-width:0}
   .rel-detail .rel-seg>b{color:#d9c59a;font-weight:600;white-space:nowrap}
@@ -397,6 +402,8 @@
   .ss-t{color:#f1cd90}
   .ss-at{color:#1a1208;background:linear-gradient(180deg,#f1cd90,#e2b46e)}
   .ss-b,.ssref-r{color:#7d7466}
+  .ssref-b.godnote{color:#7d7466}
+  .ssref-b.godnote .godnote-r>b{color:#f1cd90}
   .ssref summary{color:#e2b46e}
   .ssref-r b{color:#f1cd90}
   .ssref{border-top-color:rgba(92,78,60,.55)}
@@ -2725,15 +2732,16 @@
     // 只列本課貴神／月將本身，其餘十一項不再展開
     function godRefHTML(dict, use){
       var list = use && dict[use] ? [use] : [];
-      return '<div class="ssref"><div class="ssref-b">'+
+      return '<div class="ssref"><div class="ssref-b godnote">'+
         (list.length?list.map(function(n){
           var t=dict[n];
           var vd = GS_VIDEO[n] || JG_VIDEO[n];
-          return '<div class="ssref-r"><b>'+n+'</b><span>'+t.full+'<br>'+t.guan+
-            '<br>〔所主歌〕'+t.song.replace(/\n/g,'<br>')+
-            '<br>〔簡記〕'+t.jian+
-            (vd?'<br><b style="color:var(--gold)">影片補充：</b>'+vd:'')+'</span></div>';
-        }).join(''):'<div class="ssref-r"><span>本課未見。</span></div>')+
+          return '<div class="godnote-full">'+t.full+'</div>'+
+            '<div class="godnote-r"><b>[主管]</b><span>'+t.guan.replace(/^主管[：:]\s*/,'')+'</span></div>'+
+            '<div class="godnote-r"><b>[所主歌]</b><span>'+t.song.replace(/\n/g,' ')+'</span></div>'+
+            '<div class="godnote-r"><b>[簡記]</b><span>'+t.jian+'</span></div>'+
+            (vd?'<div class="godnote-r"><b>[補充]</b><span>'+vd+'</span></div>':'');
+        }).join(''):'<div class="ssref-r"><span class="ssref-full">本課未見。</span></div>')+
         '</div></div>';
     }
     var gsRefHTML = godRefHTML(GS_NOTE, gsUse);
