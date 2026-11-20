@@ -704,7 +704,7 @@
 <meta property="og:site_name" content="SHENG　金口訣">
 <meta property="og:title" content="SHENG　金口訣">
 <meta property="og:description" content="金口訣七步起課，手機可直接使用：四柱、月將、貴神、將神、人元、用爻，含旬空、四大空亡、內外旺衰、30 種神煞與 24 節氣。">
-<meta property="og:image" content="https://hungpinoffice-afk.github.io/sheng-jinkou/icon-512.png?v=64">
+<meta property="og:image" content="https://hungpinoffice-afk.github.io/sheng-jinkou/icon-512.png?v=65">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1056,7 +1056,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG　<span class="gap"></span>2026/11<span class="ver">V64</span></div>
+    <div class="h-sub2">SHENG　<span class="gap"></span>2026/11<span class="ver">V65</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3132,6 +3132,9 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       var items=(r.relGroups&&r.relGroups[c])||[];
       return '<div class="rel-cat c-'+REL_SLUG[c]+'"><b>'+c+'：</b><div class="rel-chips">'+(items.length?items.map(relChip).join(''):'<span style="color:var(--dim);font-size:12.5px">無</span>')+'</div></div>';
     }).join('');
+    // 課中關係入課項數（籌碼總數）與命中類別數
+    var relItemCount=relCats.reduce(function(a,c){return a+(((r.relGroups||{})[c]||[]).length);},0);
+    var relCatCount=relCats.filter(function(c){return ((r.relGroups||{})[c]||[]).length>0;}).length;
 
     // 課中關係：依本課命中類別帶出規則書對應象意
     // 斷例若確實對應本課（五行生克對相同、或地支組合兩支以上落在本課），以青綠底色標示
@@ -3299,7 +3302,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
             (n.tongText?'　<b class="near-tong">[通關法]</b>'+n.tongText:'')+'</div>';
         }).join('')
       : '<div class="near-row near-empty">本課相鄰三位未見相克組合。</div>';
-    var nearCardHTML=foldCard('鄰','相鄰五行及通關法','命中 '+(r.nearHit||[]).length+' 組',nearHitHTML);
+    var nearCardHTML=foldCard('鄰','相鄰五行及通關法',((r.nearHit||[]).length?((r.nearHit||[]).length+' 項入課'):'無'),nearHitHTML);
 
     // 神煞只列本課四位實際命中者；規則書全表不再展開
     var ss=(r.shenSha||[]).filter(function(s){return (s.at||[]).length>0;});
@@ -3533,19 +3536,19 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       '<div class="ke">'+keHTML+'</div>'+
     '</div>'+
 
-    foldCard('行','五行特徵','',wxRefHTML)+
+    foldCard('行','五行特徵', (wxInKe.length?wxInKe.length+' 項入課':'無'), wxRefHTML)+
 
-    foldCard('旺','過旺五行', wxOver.length?wxOver.map(function(w){return w+'×'+wxCount[w];}).join('、'):'無', wxOverHTML)+
+    foldCard('旺','過旺五行', (wxOver.length?wxOver.length+' 項入課':'無'), wxOverHTML)+
 
     nearCardHTML+
 
     foldCard('宮','宮位關係','',gongRefHTML)+
 
-    foldCard('合','課中關係（生 · 克 · 比 · 合 · 刑 · 沖 · 破 · 害 · 絕 · 會）','', '<div class="rel-list">'+rels+'</div>'+relRefHTML)+
+    foldCard('合','課中關係（生 · 克 · 比 · 合 · 刑 · 沖 · 破 · 害 · 絕 · 會）',(relItemCount?relItemCount+' 項入課':'無'), '<div class="rel-list">'+rels+'</div>'+relRefHTML)+
 
-    foldCard('支','地支象意（本課：'+(zhiInKe.length?zhiInKe.join('、'):'無')+'）','',zhiRefHTML)+
+    foldCard('支','地支象意（本課：'+(zhiInKe.length?zhiInKe.join('、'):'無')+'）',(zhiInKe.length?zhiInKe.length+' 項入課':'無'),zhiRefHTML)+
 
-    foldCard('組','組合象意',comboCount+' 組',comboRefHTML)+
+    foldCard('組','組合象意',(comboCount?comboCount+' 項入課':'無'),comboRefHTML)+
 
     foldCard('將','十二月將（本課：'+(jgUse||'無')+'）','',jgRefHTML)+
 
