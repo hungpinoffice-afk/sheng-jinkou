@@ -704,7 +704,7 @@
 <meta property="og:site_name" content="SHENG　金口訣">
 <meta property="og:title" content="SHENG　金口訣">
 <meta property="og:description" content="金口訣七步起課，手機可直接使用：四柱、月將、貴神、將神、人元、用爻，含旬空、四大空亡、內外旺衰、30 種神煞與 24 節氣。">
-<meta property="og:image" content="https://hungpinoffice-afk.github.io/sheng-jinkou/icon-512.png?v=61">
+<meta property="og:image" content="https://hungpinoffice-afk.github.io/sheng-jinkou/icon-512.png?v=62">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1028,13 +1028,35 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
 .co-jin::before{background:#ffffff;border-color:rgba(0,0,0,.45)} .co-jin{color:#6b6355}
 .co-shui::before{background:#26211c} .co-shui{color:#2b241b}
 
+/* ============ 過旺五行：四位五行色塊＋過旺條文 ============ */
+.ov-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 8px}
+.ov-lb{font-size:11.5px;color:var(--dim);white-space:nowrap;margin-right:2px}
+.ov-chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:4px;
+  font-family:"Noto Serif TC",serif;font-size:16px;font-weight:700;color:#fffdf6;line-height:1}
+.ov-chip.wx-mu{background:#1c7a55}
+.ov-chip.wx-huo{background:#b03528}
+.ov-chip.wx-tu{background:#95601a}
+.ov-chip.wx-jin{background:#6b7280}
+.ov-chip.wx-shui{background:#2a5aa8}
+.ov-hit{display:grid;grid-template-columns:max-content 1fr max-content;column-gap:8px;align-items:baseline;
+  padding:7px 0;border-top:1px dashed rgba(90,74,48,.22)}
+.ov-hit>.ov-wx{font-weight:700;white-space:nowrap;font-family:"Noto Serif TC",serif}
+.ov-wx.wx-mu{color:#1c7a55}
+.ov-wx.wx-huo{color:#b03528}
+.ov-wx.wx-tu{color:#95601a}
+.ov-wx.wx-jin{color:#6b7280}
+.ov-wx.wx-shui{color:#2a5aa8}
+.ov-hit>.ov-c{min-width:0;color:#2b241b}
+.ov-hit>.ov-n{font-size:11px;color:var(--dim);white-space:nowrap}
+.ov-none{color:var(--dim);font-size:12.5px}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="h-title">金口訣</div>
-    <div class="h-sub2">SHENG　<span class="gap"></span>2026/11<span class="ver">V61</span></div>
+    <div class="h-sub2">SHENG　<span class="gap"></span>2026/11<span class="ver">V62</span></div>
     <div class="h-rule"></div>
   </header>
 </div>
@@ -3299,6 +3321,26 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
       }).join(''):'<div class="ssref-r"><span>本課四位未見五行。</span></div>')+
       '</div></div>';
 
+    // 過旺五行：四位（人元／貴神／將神／地分）同一五行出現三個以上
+    var WX_OVER={'土':'結石，腫瘤，懶惰','火':'火災，血光，驚恐','水':'水災，腎病，淫邪',
+                 '金':'手術，傷殘，車災','木':'神經疾病，兄弟不和'};
+    var WX_SLUG={'木':'mu','火':'huo','土':'tu','金':'jin','水':'shui'};
+    var wxCount={};
+    keWxList.forEach(function(w){ if(w) wxCount[w]=(wxCount[w]||0)+1; });
+    var wxOver=['木','火','土','金','水'].filter(function(w){ return (wxCount[w]||0)>=3; });
+    var wxOverHTML='<div class="ssref"><div class="ssref-b">'+
+      '<div class="ov-row"><span class="ov-lb">四位五行</span>'+
+        keWxList.map(function(w){ return '<span class="ov-chip wx-'+(WX_SLUG[w]||'tu')+'" title="'+w+'">'+w+'</span>'; }).join('')+
+      '</div>'+
+      (wxOver.length
+        ? wxOver.map(function(w){
+            return '<div class="ov-hit"><b class="ov-wx wx-'+WX_SLUG[w]+'">'+w+'過旺</b>'+
+              '<span class="ov-c">'+WX_OVER[w]+'</span>'+
+              '<i class="ov-n">'+wxCount[w]+'／4</i></div>';
+          }).join('')
+        : '<div class="ov-none">本課四位未見三個同一五行，無過旺。</div>')+
+      '</div></div>';
+
     // 地支象意：只列本課四位實際出現的地支；課式地支亦有滑鼠提示
     var zhiInKe = order.map(function(o){return o.zhi;}).filter(function(z){return !!z;})
       .filter(function(z,i,a){return a.indexOf(z)===i;});
@@ -3506,6 +3548,7 @@ table.tb td{color:#2b241b;border-bottom-color:#e6dcc7}
     foldCard('煞','神煞',(ss.length?ss.length+' 項入課':'無'),ssHTML)+
 
     foldCard('行','五行特徵','',wxRefHTML)+
+    foldCard('旺','過旺五行', wxOver.length?wxOver.map(function(w){return w+'×'+wxCount[w];}).join('、'):'無', wxOverHTML)+
 
     nearCardHTML+
 
