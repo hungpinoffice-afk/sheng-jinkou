@@ -2,7 +2,7 @@
    策略：先網路、後快取（network-first）。線上時永遠拿到最新版；
    離線或訊號差時退回上次快取的版本，地鐵、山區也能起課。 */
 
-var CACHE = 'sheng-jinkou-v11';
+var CACHE = 'sheng-jinkou-v12';
 var ASSETS = [
   './',
   './index.html',
